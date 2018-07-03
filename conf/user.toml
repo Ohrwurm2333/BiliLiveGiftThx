@@ -17,6 +17,8 @@ silver2coin = false
 
 # 自动投满佩戴勋章当日亲密度
 send2wearing-medal = false
+# 房间号 短房间
+send2medal = []
 
 # 老接口兑换硬币为银瓜子
 doublegain_coin2silver = false
@@ -34,4 +36,8 @@ mid = [207539637]
 keep-login = true
 
 # 默认监听房间号
-default_monitor_roomid = 23058
+default_monitor_roomid = 253774
+
+# 房管助手房间
+gift_thx_roomid = 253774
+# gift_thx_roomid = 3607215

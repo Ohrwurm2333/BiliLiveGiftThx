@@ -47,7 +47,7 @@ async def WearingMedalInfo():
             return [(data['roominfo']['room_id'],  int(data['day_limit']) - int(data['today_feed']), data['medal_name']), ]
         else:
             # print('暂无佩戴任何勋章')
-            return
+            return []
 
         # web api返回值信息少
 
@@ -63,7 +63,7 @@ async def TitleInfo():
                 max = '-'
             print(i['activity'], i['score'], max)
 
-async def fetch_medal(show=True):
+async def fetch_medal(show=True, list_wanted_medal=[]):
     printlist = []
     list_medal = []
     if show:
@@ -87,8 +87,16 @@ async def fetch_medal(show=True):
                                                            dic_worn[str(i['status'])]))
         if show:
             printer.info(printlist, True)
-        list_medal = [i[:3] for i in sorted(list_medal, key=itemgetter(3), reverse=True)]
-        return list_medal
+        if list_wanted_medal:
+            list_return_medal = []
+            for roomid in list_wanted_medal:
+                for i in list_medal:
+                    if i[0] == roomid:
+                        list_return_medal.append(i[:3])
+                        break
+        else:
+            list_return_medal = [i[:3] for i in sorted(list_medal, key=itemgetter(3), reverse=True)]
+        return list_return_medal
 
 async def send_danmu_msg_web(msg, roomId):
     json_response = await bilibili.request_send_danmu_msg_web(msg, roomId)

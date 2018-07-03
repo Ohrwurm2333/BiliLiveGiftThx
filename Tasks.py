@@ -97,25 +97,27 @@ async def send_gift():
 async def auto_send_gift():
     # await utils.WearingMedalInfo()
     # return
+    list_medal = []
     if ConfigLoader().dic_user['task_control']['send2wearing-medal']:
         list_medal = await utils.WearingMedalInfo()
-        if list_medal is None:
+        if not list_medal:
             print('暂未佩戴任何勋章')
-            await BiliTimer.append2list_jobs(auto_send_gift, 21600)
-            return
-        # print(list_medal)
-        print('正在投递当前佩戴勋章勋章')
-        temp = await utils.fetch_bag_list(show=False)
-        # print(temp)
-        list_gift = []
-        for i in temp:
-            gift_id = int(i[0])
-            left_time = i[3]
-            if (gift_id not in [4, 3, 9, 10]) and left_time is not None:
-                list_gift.append(i[:3])
-        await full_intimate(list_gift, list_medal)
-                
-        # printer.info(["# 自动送礼共送出亲密度为%s的礼物" % int(calculate)])
+            # await BiliTimer.append2list_jobs(auto_send_gift, 21600)
+    if ConfigLoader().dic_user['task_control']['send2medal']:
+        list_medal += await utils.fetch_medal(False, ConfigLoader().dic_user['task_control']['send2medal'])
+    # print(list_medal)    
+    print('正在投递勋章')
+    temp = await utils.fetch_bag_list(show=False)
+    # print(temp)
+    list_gift = []
+    for i in temp:
+        gift_id = int(i[0])
+        left_time = i[3]
+        if (gift_id not in [4, 3, 9, 10]) and left_time is not None:
+            list_gift.append(i[:3])
+    await full_intimate(list_gift, list_medal)
+            
+    # printer.info(["# 自动送礼共送出亲密度为%s的礼物" % int(calculate)])
     await BiliTimer.append2list_jobs(auto_send_gift, 21600)
 
 async def full_intimate(list_gift, list_medal):

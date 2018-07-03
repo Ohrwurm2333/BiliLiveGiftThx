@@ -15,6 +15,7 @@ import os
 import login
 import biliconsole
 from bilitimer import BiliTimer
+import giftthx
 
 
 loop = asyncio.get_event_loop()
@@ -34,11 +35,12 @@ Statistics()
 rafflehandler = Rafflehandler()
 biliconsole.Biliconsole(loop, queue)
 
-list_raffle_connection = [connect.RaffleConnect(i) for i in range(1, 5)]
-list_raffle_connection_task = [i.run() for i in list_raffle_connection]
+# list_raffle_connection = [connect.RaffleConnect(i) for i in range(1, 5)]
+# list_raffle_connection_task = [i.run() for i in list_raffle_connection]
 
-danmu_connection = connect.connect()
-
+# danmu_connection = connect.connect()
+gift_connection = giftthx.GiftConnect()
+gift_connection_task = [gift_connection.run()]
 
 bili_timer = BiliTimer()
 delay_timer = Delay_Joiner()
@@ -49,27 +51,25 @@ console_thread.start()
 
 tasks = [
     OnlineHeart.run(),
-    Silver.run(),
-    danmu_connection.run(),
+    giftthx.run(),
+    # Silver.run(),
+    # danmu_connection.run(),
     # LotteryResult.run(),
-    rafflehandler.run(),
+    # rafflehandler.run(),
     biliconsole.Biliconsole.run(),
-    bili_timer.run(),
-    delay_timer.run()
-    
+    # bili_timer.run(),
+    # delay_timer.run()
+
 ]
 try:
-    loop.run_until_complete(asyncio.wait(tasks + list_raffle_connection_task))
+    loop.run_until_complete(asyncio.wait(tasks + gift_connection_task))
 except KeyboardInterrupt:
     # print(sys.exc_info()[0], sys.exc_info()[1])
     if ConfigLoader().dic_user['other_control']['keep-login']:
         pass
     else:
         response = login.logout()
-    
+
 console_thread.join()
 
 loop.close()
-    
-
-
