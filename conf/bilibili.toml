@@ -33,7 +33,7 @@ Connection = "keep-alive"
 cookie = ""
 
 [account]
-username = ""
+username = "lc4t0.0@gmail.com"
 password = ""
 
 [giftids_raffle]
@@ -41,8 +41,8 @@ password = ""
 116 = "漫天花雨"
 
 [saved-session]
-access_key = ""
-cookie = ""
-csrf = ""
-uid = ""
-refresh_token = ""
+access_key = "3c05fe4fb75a5a3e85cabaca442de56e"
+cookie = "bili_jct=cea80d94183f2a7f2c47171bea304e96;DedeUserID=40214146;DedeUserID__ckMd5=407fc70b718622cf;sid=aib7yibs;SESSDATA=ce435e65%2C1533320398%2C1bf07cbf"
+csrf = "cea80d94183f2a7f2c47171bea304e96"
+uid = "40214146"
+refresh_token = "9728a2148f5acd141d0a6d05e08e881c"
