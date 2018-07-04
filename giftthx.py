@@ -170,7 +170,7 @@ async def DanMuraffle(area_id, connect_roomid, dic):
             printer.info(['普通送礼提示', dic['msg_text']])
         return
     elif cmd == 'SEND_GIFT':
-        print(dic)
+        # print(dic)
         num = dic.get('data').get('num')
         uname = dic.get('data').get('uname')
         giftName = dic.get('data').get('giftName')
@@ -410,9 +410,9 @@ async def run():
                         't': time.time(),
                         'num': ans.get('num') + j.get('num'),
                     })
-                    print(ans)
+                    # print(ans)
                     added = True
-                print(filter_list)
+                # print(filter_list)
                 break
             if not added:
                 filter_list.append(j)
@@ -426,10 +426,13 @@ async def run():
 
         for _ in range(len(filter_list)):
             thx_dic = filter_list[_]
-            print(time.time() - thx_dic['t'], thx_dic['giftName'], thx_dic['num'])
+            # print(time.time() - thx_dic['t'], thx_dic['giftName'], thx_dic['num'])
             if time.time() - thx_dic['t'] > 5:
                 try:
-                    msg = '感谢[%s]赠送的%d个%s~' % (thx_dic['uname'], thx_dic['num'], thx_dic['giftName'])
+                    if thx_dic['uname'] == '不玩游戏的lc4t嘤嘤嘤':
+                        msg = '感谢[吨吨]赠送的%d个%s mua~' % (thx_dic['num'], thx_dic['giftName'])
+                    else:
+                        msg = '感谢[%s]赠送的%d个%s~' % (thx_dic['uname'], thx_dic['num'], thx_dic['giftName'])
                 except Exception as e:
                     print(e)
                 await thx_danmu(msg, thx_dic['roomid'])
