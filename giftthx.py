@@ -174,7 +174,8 @@ async def DanMuraffle(area_id, connect_roomid, dic):
         num = dic.get('data').get('num')
         uname = dic.get('data').get('uname')
         giftName = dic.get('data').get('giftName')
-        add_thx(uname, num, giftName, connect_roomid)
+        coin_type = dic.get('data').get('coin_type')
+        add_thx(uname, num, giftName, connect_roomid, coin_type)
 
 
 
@@ -267,7 +268,7 @@ class bilibiliClient():
         data = header + remain_data
         try:
             await self.ws.send(data)
-        except websockets.exceptions.ConnectionClosed:
+        except websockets.exceptionsself.ConnectionClosed:
             print("# 主动关闭或者远端主动关闭.")
             await self.ws.close()
             self.connected = False
@@ -371,7 +372,7 @@ class bilibiliClient():
                         return
                     len_read += len_data
 
-def add_thx(uname, num, giftName, roomid):
+def add_thx(uname, num, giftName, roomid, coin_type):
     global thx_queue
 
     dic = {
@@ -380,6 +381,7 @@ def add_thx(uname, num, giftName, roomid):
         'uname': uname,
         'giftName': giftName,
         'roomid': roomid,
+        'coin_type': coin_type,
     }
     thx_queue.put(dic)
 
@@ -405,7 +407,7 @@ async def run():
             added = False
             for k in range(len(filter_list)):   # 添加重复
                 ans = filter_list[k]
-                if j.get('uname') == ans.get('uname') and j.get('giftName') == ans.get('giftName') and j.get('roomid') == ans.get('roomid'):
+                if j.get('uname') == ans.get('uname') and j.get('giftName') == ans.get('giftName') and j.get('roomid') == ans.get('roomid') and j.get('coin_type') == ans.get('coin_type'):
                     filter_list[k].update({
                         't': time.time(),
                         'num': ans.get('num') + j.get('num'),
@@ -433,6 +435,8 @@ async def run():
                         msg = '感谢[吨吨]赠送的%d个%s mua~' % (thx_dic['num'], thx_dic['giftName'])
                     else:
                         msg = '感谢[%s]赠送的%d个%s~' % (thx_dic['uname'], thx_dic['num'], thx_dic['giftName'])
+                    if thx_dic['coin_type'] == 'gold':
+                        msg += ' 嘤嘤嘤'
                 except Exception as e:
                     print(e)
                 await thx_danmu(msg, thx_dic['roomid'])
