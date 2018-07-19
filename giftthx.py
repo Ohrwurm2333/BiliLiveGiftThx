@@ -28,6 +28,10 @@ import queue
 }
 
 '''
+
+ad = '喜欢叶叶的点一下关注啦~群在左下角~上船福利在简介~啦啦啦'
+danmu_count = 0
+
 thx_queue = queue.Queue()
 
 
@@ -135,36 +139,35 @@ async def DanMuraffle(area_id, connect_roomid, dic):
     if cmd == 'SYS_GIFT':
         if 'giftId' in dic:
             if str(dic['giftId']) in bilibili.get_giftids_raffle_keys():
-
                 text1 = dic['real_roomid']
                 text2 = dic['url']
                 giftId = dic['giftId']
-                printer.info(["检测到房间{:^9}的{}活动抽奖".format(text1, bilibili.get_giftids_raffle(str(giftId)))], True)
-                rafflehandler.Rafflehandler.Put2Queue((giftId, text1, text2), rafflehandler.handle_1_room_activity)
-                Statistics.append2pushed_raffle('活动', area_id=area_id)
+                # printer.info(["检测到房间{:^9}的{}活动抽奖".format(text1, bilibili.get_giftids_raffle(str(giftId)))], True)
+                # rafflehandler.Rafflehandler.Put2Queue((giftId, text1, text2), rafflehandler.handle_1_room_activity)
+                # Statistics.append2pushed_raffle('活动', area_id=area_id)
 
-            elif dic['giftId'] == 39:
-                printer.info(["节奏风暴"], True)
-                temp = await bilibili.get_giftlist_of_storm(dic)
-                check = len(temp['data'])
-                if check != 0 and temp['data']['hasJoin'] != 1:
-                    id = temp['data']['id']
-                    json_response1 = await bilibili.get_gift_of_storm(id)
-                    print(json_response1)
-                else:
-                    printer.info([dic, "请联系开发者"])
-            else:
-                text1 = dic['real_roomid']
-                text2 = dic['url']
-                printer.info([dic, "请联系开发者"])
-                try:
-                    giftId = dic['giftId']
-                    printer.info(["检测到房间{:^9}的{}活动抽奖".format(text1, bilibili.get_giftids_raffle(str(giftId)))], True)
-                    rafflehandler.Rafflehandler.Put2Queue((giftId, text1, text2), rafflehandler.handle_1_room_activity)
-                    Statistics.append2pushed_raffle('活动', area_id=area_id)
-
-                except:
-                    printer.info([dic, "请联系开发者"])
+            # elif dic['giftId'] == 39:
+            #     printer.info(["节奏风暴"], True)
+            #     temp = await bilibili.get_giftlist_of_storm(dic)
+            #     check = len(temp['data'])
+            #     if check != 0 and temp['data']['hasJoin'] != 1:
+            #         id = temp['data']['id']
+            #         json_response1 = await bilibili.get_gift_of_storm(id)
+            #         print(json_response1)
+            #     else:
+            #         printer.info([dic, "请联系开发者"])
+            # else:
+            #     text1 = dic['real_roomid']
+            #     text2 = dic['url']
+            #     printer.info([dic, "请联系开发者"])
+            #     try:
+            #         giftId = dic['giftId']
+            #         # printer.info(["检测到房间{:^9}的{}活动抽奖".format(text1, bilibili.get_giftids_raffle(str(giftId)))], True)
+            #         # rafflehandler.Rafflehandler.Put2Queue((giftId, text1, text2), rafflehandler.handle_1_room_activity)
+            #         # Statistics.append2pushed_raffle('活动', area_id=area_id)
+            #
+            #     except:
+            #         printer.info([dic, "请联系开发者"])
 
         else:
             printer.info(['普通送礼提示', dic['msg_text']])
@@ -180,30 +183,51 @@ async def DanMuraffle(area_id, connect_roomid, dic):
 
 
     elif cmd == 'SYS_MSG':
-        if 'real_roomid' in dic:
-            real_roomid = dic['real_roomid']
-            type_text = (dic['msg'].split(':?')[-1]).split('，')[0].replace('一个', '')
-            printer.info([f'{area_id}号弹幕监控检测到{real_roomid:^9}的{type_text}'], True)
-            rafflehandler.Rafflehandler.Put2Queue((real_roomid,), rafflehandler.handle_1_room_TV)
-            Statistics.append2pushed_raffle(type_text, area_id=area_id)
+        pass
+        # print(dic)
+        # if 'real_roomid' in dic:
+        #     real_roomid = dic['real_roomid']
+        #     type_text = (dic['msg'].split(':?')[-1]).split('，')[0].replace('一个', '')
+            # printer.info([f'{area_id}号弹幕监控检测到{real_roomid:^9}的{type_text}'], True)
+            # rafflehandler.Rafflehandler.Put2Queue((real_roomid,), rafflehandler.handle_1_room_TV)
+            # Statistics.append2pushed_raffle(type_text, area_id=area_id)
 
     elif cmd == 'GUARD_MSG':
-        a = re.compile(r"(?<=在主播 )\S+(?= 的直播间开通了总督)")
-        res = re.search(a, dic['msg'])
-        if res is not None:
-            name = str(res.group())
-            printer.info([f'{area_id}号弹幕监控检测到{name:^9}的总督'], True)
-            rafflehandler.Rafflehandler.Put2Queue((((name,), utils.find_live_user_roomid),), rafflehandler.handle_1_room_captain)
-            Statistics.append2pushed_raffle('总督', area_id=area_id)
+        print(dic)
+        # a = re.compile(r"(?<=在主播 )\S+(?= 的直播间开通了总督)")
+        # res = re.search(a, dic['msg'])
+        # if res is not None:
+        #     name = str(res.group())
+        #     printer.info([f'{area_id}号弹幕监控检测到{name:^9}的总督'], True)
+        #     rafflehandler.Rafflehandler.Put2Queue((((name,), utils.find_live_user_roomid),), rafflehandler.handle_1_room_captain)
+        #     Statistics.append2pushed_raffle('总督', area_id=area_id)
+    elif cmd == 'DANMU_MSG':
+        await printDanMu(dic)
 
 
-def printDanMu(dic):
+
+async def printDanMu(dic):
+    # print(dic)
+    global danmu_count
+    global ad
     cmd = dic['cmd']
 
     if cmd == 'DANMU_MSG':
         # print(dic)
+        if '感谢[' not in dic['info'][1] and ad != dic['info'][1]:
+            # danmu_count += 1
+            print(danmu_count)
+            try:
+                if danmu_count % 10 == 0:
+                    await send_ad(ad)
+            except Exception as e:
+                print(e)
         Printer().print_danmu(dic)
+
         return
+
+async def send_ad(ad):
+    await thx_danmu(ad)
 
 
 class bilibiliClient():
@@ -360,7 +384,7 @@ class bilibiliClient():
                     elif opt == 5:
                         messages = remain_data.decode('utf-8')
                         dic = json.loads(messages)
-                        state = printDanMu(dic)
+                        state = await printDanMu(dic)
                     # 握手确认
                     elif opt == 8:
                         printer.info([f'{self.area_id}号弹幕监控进入房间（{self.roomid}）'], True)
@@ -431,7 +455,7 @@ async def run():
             # print(time.time() - thx_dic['t'], thx_dic['giftName'], thx_dic['num'])
             if time.time() - thx_dic['t'] > 5:
                 try:
-                    if thx_dic['uname'] == '不玩游戏的lc4t嘤嘤嘤':
+                    if 'lc4t' in thx_dic['uname']:
                         msg = '感谢[吨吨]赠送的%d个%s mua~' % (thx_dic['num'], thx_dic['giftName'])
                     else:
                         msg = '感谢[%s]赠送的%d个%s~' % (thx_dic['uname'], thx_dic['num'], thx_dic['giftName'])
@@ -445,5 +469,5 @@ async def run():
 
         await asyncio.sleep(1)
 
-async def thx_danmu(msg, roomid):
+async def thx_danmu(msg, roomid=253774):
     await bilibili.request_send_danmu_msg_web(msg, str(roomid))
