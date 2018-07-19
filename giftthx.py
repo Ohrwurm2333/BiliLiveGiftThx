@@ -139,9 +139,11 @@ async def DanMuraffle(area_id, connect_roomid, dic):
     if cmd == 'SYS_GIFT':
         if 'giftId' in dic:
             if str(dic['giftId']) in bilibili.get_giftids_raffle_keys():
-                text1 = dic['real_roomid']
-                text2 = dic['url']
-                giftId = dic['giftId']
+                # text1 = dic['real_roomid']
+                # text2 = dic['url']
+                # giftId = dic['giftId']
+                pass
+
                 # printer.info(["检测到房间{:^9}的{}活动抽奖".format(text1, bilibili.get_giftids_raffle(str(giftId)))], True)
                 # rafflehandler.Rafflehandler.Put2Queue((giftId, text1, text2), rafflehandler.handle_1_room_activity)
                 # Statistics.append2pushed_raffle('活动', area_id=area_id)
@@ -170,6 +172,7 @@ async def DanMuraffle(area_id, connect_roomid, dic):
             #         printer.info([dic, "请联系开发者"])
 
         else:
+            print(dic)
             printer.info(['普通送礼提示', dic['msg_text']])
         return
     elif cmd == 'SEND_GIFT':
@@ -215,8 +218,8 @@ async def printDanMu(dic):
     if cmd == 'DANMU_MSG':
         # print(dic)
         if '感谢[' not in dic['info'][1] and ad != dic['info'][1]:
-            # danmu_count += 1
-            print(danmu_count)
+            danmu_count += 1
+            # print(danmu_count)
             try:
                 if danmu_count % 10 == 0:
                     await send_ad(ad)
