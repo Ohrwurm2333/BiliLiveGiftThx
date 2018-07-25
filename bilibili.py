@@ -9,6 +9,7 @@ import base64
 import aiohttp
 import asyncio
 import random
+import json
 
 reload(sys)
 
@@ -96,14 +97,16 @@ class bilibili():
             try:
                 response = await self.bili_section.post(url, headers=headers, data=data)
                 if response.status == 200:
-                    json_response = await response.json(content_type=None)
+                    # json_response = await response.json(content_type=None)
+                    data = await response.read()
+                    json_response = json.loads(data)
                     if isinstance(json_response, dict):
                         tag = await replay_request(json_response['code'])
                         if tag:
                             continue
                     return json_response
                 elif response.status == 403:
-                    print('403频繁')
+                    print('403频繁', url)
             except:
                 # print('当前网络不好，正在重试，请反馈开发者!!!!')
                 # print(sys.exc_info()[0], sys.exc_info()[1])
@@ -114,14 +117,16 @@ class bilibili():
             try:
                 response = await self.other_session.get(url, headers=headers, data=data)
                 if response.status == 200:
-                    json_response = await response.json(content_type=None)
+                    # json_response = await response.json(content_type=None)
+                    data = await response.read()
+                    json_response = json.loads(data)
                     if isinstance(json_response, dict) and 'code' in json_response:
                         tag = await replay_request(json_response['code'])
                         if tag:
                             continue
                     return json_response
                 elif response.status == 403:
-                    print('403频繁')
+                    print('403频繁', url)
             except:
                 # print('当前网络不好，正在重试，请反馈开发者!!!!')
                 # print(sys.exc_info()[0], sys.exc_info()[1])
@@ -132,14 +137,16 @@ class bilibili():
             try:
                 response = await self.other_session.post(url, headers=headers, data=data)
                 if response.status == 200:
-                    json_response = await response.json(content_type=None)
+                    # json_response = await response.json(content_type=None)
+                    data = await response.read()
+                    json_response = json.loads(data)
                     if isinstance(json_response, dict) and 'code' in json_response:
                         tag = await replay_request(json_response['code'])
                         if tag:
                             continue
                     return json_response
                 elif response.status == 403:
-                    print('403频繁')
+                    print('403频繁', url)
             except:
                 # print('当前网络不好，正在重试，请反馈开发者!!!!')
                 # print(sys.exc_info()[0], sys.exc_info()[1])
@@ -150,14 +157,16 @@ class bilibili():
             try:
                 response = await self.bili_section.get(url, headers=headers, data=data)
                 if response.status == 200:
-                    json_response = await response.json(content_type=None)
+                    # json_response = await response.json(content_type=None)
+                    data = await response.read()
+                    json_response = json.loads(data)
                     if isinstance(json_response, dict):
                         tag = await replay_request(json_response['code'])
                         if tag:
                             continue
                     return json_response
                 elif response.status == 403:
-                    print('403频繁')
+                    print('403频繁', url)
             except:
                 # print('当前网络不好，正在重试，请反馈开发者!!!!')
                 # print(sys.exc_info()[0], sys.exc_info()[1])
@@ -170,7 +179,7 @@ class bilibili():
                 if response.status == 200:
                     return await response.text()
                 elif response.status == 403:
-                    print('403频繁')
+                    print('403频繁', url)
             except:
                 # print('当前网络不好，正在重试，请反馈开发者!!!!')
                 # print(sys.exc_info()[0], sys.exc_info()[1])
@@ -273,7 +282,7 @@ class bilibili():
     async def request_check_room(roomid):
         inst = bilibili.instance
         url = f"{base_url}/room/v1/Room/room_init?id={roomid}"
-        response = await inst.bili_section_get(url, headers=inst.dic_bilibili['pcheaders'])
+        response = await inst.bili_section_get(url)
         return response
 
     @staticmethod
@@ -490,15 +499,15 @@ class bilibili():
         return pc_response
 
     @staticmethod
-    async def get_gift_of_events_app(text1, text2, raffleid):
+    async def get_gift_of_events_app(text1, raffleid):
         inst = bilibili.instance
         headers = {
             'Accept': 'application/json, text/plain, */*',
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36',
             'cookie': inst.dic_bilibili['cookie'],
-            'referer': text2
+            #'referer': text2
         }
-        temp_params = f'access_key={inst.dic_bilibili["access_key"]}&actionKey={inst.dic_bilibili["actionKey"]}&appkey={inst.dic_bilibili["appkey"]}&build={inst.dic_bilibili["build"]}&device={inst.dic_bilibili["device"]}&event_type=flower_rain-{raffleid}&mobi_app={inst.dic_bilibili["mobi_app"]}&platform={inst.dic_bilibili["platform"]}&room_id={text1}&ts={CurrentTime()}'
+        temp_params = f'access_key={inst.dic_bilibili["access_key"]}&actionKey={inst.dic_bilibili["actionKey"]}&appkey={inst.dic_bilibili["appkey"]}&build={inst.dic_bilibili["build"]}&device={inst.dic_bilibili["device"]}&event_type={raffleid}&mobi_app={inst.dic_bilibili["mobi_app"]}&platform={inst.dic_bilibili["platform"]}&room_id={text1}&ts={CurrentTime()}'
         # params = temp_params + inst.dic_bilibili['app_secret']
         sign = inst.calc_sign(temp_params)
         true_url = f'{base_url}/YunYing/roomEvent?{temp_params}&sign={sign}'
@@ -545,8 +554,11 @@ class bilibili():
     @staticmethod
     async def get_giftlist_of_events(text1):
         inst = bilibili.instance
-        url = f'{base_url}/activity/v1/Raffle/check?roomid={text1}'
-        response = await bilibili.instance.bili_section_get(url, headers=inst.dic_bilibili['pcheaders'])
+        # url = f'{base_url}/activity/v1/Raffle/check?roomid={text1}'
+        temp_params = f'{base_url}/activity/v1/Common/mobileRoomInfo?access_key={inst.dic_bilibili["access_key"]}&{inst.app_params}&roomid={text1}&ts={CurrentTime()}'
+        sign = inst.calc_sign(temp_params)
+        url = f'{base_url}/activity/v1/Common/mobileRoomInfo?{temp_params}&sign={sign}'
+        response = await bilibili.instance.bili_section_get(url, headers=inst.dic_bilibili['appheaders'])
         return response
 
     @staticmethod

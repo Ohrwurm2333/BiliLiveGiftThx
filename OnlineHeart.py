@@ -20,7 +20,7 @@ async def heartbeat():
 
 # 因为休眠时间差不多,所以放到这里,此为实验性功能
 async def draw_lottery():
-    for i in range(74, 90):
+    for i in range(87, 95):
         json_response = await bilibili.get_lotterylist(i)
         blacklist = ['test', 'TEST', '测试', '加密']
         # -400 不存在
