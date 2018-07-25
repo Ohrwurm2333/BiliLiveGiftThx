@@ -169,23 +169,22 @@ async def printDanMu(dic):
         print(output)
         open('danmus.log', 'a').write(output + '\n')
 
-        if '感谢[' not in content and ad != content:
-            danmu_count += 1
-            # print(danmu_count)
-            try:
-                if danmu_count % 25 == 0:
-                    await send_ad(ad)
-            except Exception as e:
-                print(e)
+        if '感谢[' in content or ad == content:
+            return
+
+        danmu_count += 1
+        if danmu_count % 25 == 0:
+            await send_ad(ad)
+
         # 黑名单检测
         # try:
         for d in pattern_black_list:
             try:
                 p = ''
                 _ = re.findall(d['pattern'], content)
-                print(_)
                 while(1):
-
+                    if len(_) == 0:
+                        break
                     p = _[0]
                     print(p)
                     if type(p) == type(''):
