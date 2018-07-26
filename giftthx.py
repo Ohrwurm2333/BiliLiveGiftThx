@@ -162,7 +162,11 @@ async def printDanMu(dic):
         send_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(send_time))
         author_uid = dic['info'][2][0]
         author_uname = dic['info'][2][1]
-        roomid = dic['info'][3][3]  # str
+        try:
+            roomid = dic['info'][3][3]  # str
+        except Exception as e:
+            print(e)
+            roomid = ConfigLoader().dic_user['other_control']['default_monitor_roomid']
         content = dic['info'][1]
         output = f'[{send_time_str}]{author_uname}({author_uid}):{content}'
 
