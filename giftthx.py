@@ -165,7 +165,7 @@ async def printDanMu(dic):
         try:
             roomid = dic['info'][3][3]  # str
         except Exception as e:
-            print(e)
+            # print(e)
             roomid = ConfigLoader().dic_user['other_control']['default_monitor_roomid']
         content = dic['info'][1]
         output = f'[{send_time_str}]{author_uname}({author_uid}):{content}'
@@ -452,7 +452,7 @@ async def run():
                     else:
                         msg = '感谢[%s]赠送的%d个%s~' % (thx_dic['uname'], thx_dic['num'], thx_dic['giftName'])
                     if thx_dic['coin_type'] == 'gold':
-                        msg += ' 嘤嘤嘤'
+                        msg += ' 么么哒~'
                 except Exception as e:
                     print(e)
                 await thx_danmu(msg, thx_dic['roomid'])
