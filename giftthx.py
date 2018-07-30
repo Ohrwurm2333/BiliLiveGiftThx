@@ -130,6 +130,11 @@ async def DanMuraffle(area_id, connect_roomid, dic):
         #     Statistics.append2pushed_raffle('总督', area_id=area_id)
     elif cmd == 'DANMU_MSG':
         await printDanMu(dic)
+    elif cmd == 'GUARD_BUY':
+        uname = dic['data']['username']
+        item = dic['data']['gift_name']
+        msg = '普天同庆! [%s]开通了[%s] 哇哇哇~' % (uname, item)
+        await thx_danmu(msg, connect_roomid):
     else:
         open('other.log', 'a').write(json.dumps(dic) + '\n')
 
@@ -445,7 +450,7 @@ async def run():
         for _ in range(len(filter_list)):
             thx_dic = filter_list[_]
             # print(time.time() - thx_dic['t'], thx_dic['giftName'], thx_dic['num'])
-            if time.time() - thx_dic['t'] > 5:
+            if time.time() - thx_dic['t'] > 10:
                 try:
                     if 'lc4t' in thx_dic['uname']:
                         msg = '感谢[吨吨]赠送的%d个%s mua~' % (thx_dic['num'], thx_dic['giftName'])
