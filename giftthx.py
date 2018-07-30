@@ -134,7 +134,7 @@ async def DanMuraffle(area_id, connect_roomid, dic):
         uname = dic['data']['username']
         item = dic['data']['gift_name']
         msg = '普天同庆! [%s]开通了[%s] 哇哇哇~' % (uname, item)
-        await thx_danmu(msg, connect_roomid):
+        await thx_danmu(msg, connect_roomid)
     else:
         open('other.log', 'a').write(json.dumps(dic) + '\n')
 
