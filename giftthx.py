@@ -462,7 +462,7 @@ async def run():
                         msg += ' 么么哒~'
                 except Exception as e:
                     print(e)
-                # await thx_danmu(msg, thx_dic['roomid'])
+                await thx_danmu(msg, thx_dic['roomid'])
             else:
                 thx_queue.put(thx_dic)
 
