@@ -452,7 +452,7 @@ async def run():
         for _ in range(len(filter_list)):
             thx_dic = filter_list[_]
             # print(time.time() - thx_dic['t'], thx_dic['giftName'], thx_dic['num'])
-            if time.time() - thx_dic['t'] > 10:
+            if time.time() - thx_dic['t'] > 5:
                 try:
                     if 'lc4t' in thx_dic['uname']:
                         msg = '感谢[吨吨]赠送的%d个%s mua~' % (thx_dic['num'], thx_dic['giftName'])

@@ -171,7 +171,6 @@ class Biliconsole():
 
     @staticmethod
     def append2list_console(request):
-        print(request)
         inst = Biliconsole.instance
         inst.loop.call_soon_threadsafe(inst.queue_console.put_nowait, request)
 
