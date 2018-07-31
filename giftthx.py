@@ -187,7 +187,8 @@ async def printDanMu(dic):
             return
 
         danmu_count += 1
-        if danmu_count % 25 == 0 and time.time() - last_danmu > delay_ad:
+        if danmu_count > 25 and time.time() - last_danmu > delay_ad:
+            danmu_count = 0
             await send_ad(ad)
         last_danmu = time.time()
         # 黑名单检测
