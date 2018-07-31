@@ -56,7 +56,7 @@ tasks = [
     # danmu_connection.run(),
     # LotteryResult.run(),
     # rafflehandler.run(),
-    # biliconsole.Biliconsole.run(),
+    biliconsole.Biliconsole.run(),
     # bili_timer.run(),
     # delay_timer.run()
 

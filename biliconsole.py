@@ -1,4 +1,5 @@
 import utils
+from bilibili import bilibili
 from statistics import Statistics
 from connect import connect
 from printer import Printer
@@ -25,8 +26,9 @@ def guide_of_console():
     print('|13 房间号码查看主播         |')
     print('|14 当前拥有的扭蛋币         |')
     print('|15 开扭蛋币(只能1，10，100) |')
+
     print('￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣')
-    
+
 
 def fetch_real_roomid(roomid):
     if roomid:
@@ -41,8 +43,8 @@ def preprocess_send_danmu_msg_andriod():
     roomid = input('请输入要发送的房间号:')
     real_roomid = fetch_real_roomid(roomid)
     Biliconsole.append2list_console([[msg, real_roomid], utils.send_danmu_msg_andriod])
-  
-      
+
+
 def preprocess_send_danmu_msg_web():
     msg = input('请输入要发送的信息:')
     roomid = input('请输入要发送的房间号:')
@@ -66,8 +68,8 @@ def process_send_gift_web():
     real_roomid = fetch_real_roomid(roomid)
     # Biliconsole.append2list_console([[real_roomid, [[False, bagid], utils.fetch_bag_list], giftnum, bagid], utils.send_gift_web])
     Biliconsole.append2list_console([[real_roomid, giftnum, bagid], utils.send_gift_web])
-    
-    
+
+
 def preprocess_change_danmuji_roomid():
     roomid = input('请输入roomid')
     real_roomid = fetch_real_roomid(roomid)
@@ -80,14 +82,14 @@ def change_printer_dic_user():
         Printer().dic_user['print_control']['danmu'] = True
     else:
         Printer().dic_user['print_control']['danmu'] = False
-        
-        
+
+
 def preprocess_fetch_liveuser_info():
     roomid = input('请输入roomid')
     real_roomid = fetch_real_roomid(roomid)
     Biliconsole.append2list_console([[real_roomid], utils.fetch_liveuser_info])
 
-        
+
 def preprocess_open_capsule():
     count = input('请输入要开的扭蛋数目(1或10或100)')
     Biliconsole.append2list_console([[count], utils.open_capsule])
@@ -101,11 +103,19 @@ def process_watch_living_video():
         return
     print('仅支持ios')
 
-        
+
 def InputGiveCoin2Av():
     video_id = input('请输入av号')
     num = input('输入数目')
     Biliconsole.append2list_console([[int(video_id), int(num)], utils.GiveCoin2Av])
+
+def block_user():
+    uname = input('请输入用户昵称:')
+    roomid = ConfigLoader().dic_user['other_control']['default_monitor_roomid']
+    # real_roomid = fetch_real_roomid(roomid)
+    # print(real_roomid)
+    Biliconsole.append2list_console([[roomid, 1, uname, 720], bilibili.room_block_user])
+    # bilibili.room_block_user(ConfigLoader().dic_user['other_control']['default_monitor_roomid'], 1, uname, 720)
 
 options = {
     '1': Statistics.getlist,
@@ -129,6 +139,7 @@ options = {
     '19': Rafflehandler.getlist,
     '20': Statistics.checklist,
     '21': InputGiveCoin2Av,
+    'ban': block_user,
     'help': guide_of_console,
     'h': guide_of_console
 }
@@ -146,8 +157,8 @@ def controler():
             Biliconsole.append2list_console(answer)
         else:
             options.get(x, return_error)()
-  
-              
+
+
 class Biliconsole():
     instance = None
 
@@ -157,12 +168,13 @@ class Biliconsole():
             cls.instance.queue_console = queue
             cls.instance.loop = loop
         return cls.instance
-        
+
     @staticmethod
     def append2list_console(request):
+        print(request)
         inst = Biliconsole.instance
         inst.loop.call_soon_threadsafe(inst.queue_console.put_nowait, request)
-        
+
     @staticmethod
     async def run():
         while True:
@@ -180,8 +192,3 @@ class Biliconsole():
             else:
                 await i()
             # print('剩余', self.queue_console.qsize())
-        
-        
-    
-    
-    

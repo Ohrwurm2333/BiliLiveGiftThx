@@ -1,16 +1,16 @@
 from bilibili import bilibili
-
+from configloader import ConfigLoader
+import random
+from biliconsole import fetch_real_roomid
+from statistics import Statistics
+from printer import Printer
 import time
 import datetime
 import asyncio
 import printer
 import login
 import utils
-from configloader import ConfigLoader
-import random
-from biliconsole import fetch_real_roomid
-from statistics import Statistics
-from printer import Printer
+
 import rafflehandler
 import websockets
 import struct
@@ -20,7 +20,7 @@ import sys
 import queue
 
 
-
+# Cen喵喵 薇尔莉特xx 小书童666
 '''
 {
     t: time.time()   -> int
@@ -143,7 +143,7 @@ async def DanMuraffle(area_id, connect_roomid, dic):
 async def printDanMu(dic):
     # print(dic)
 
-
+    f = 'block.json'
     pattern_black_list = [
         # {
         #     'pattern': '^\?\?\?$',
@@ -155,6 +155,8 @@ async def printDanMu(dic):
         }
 
     ]
+
+    pattern_black_list = json.loads(open('block.json', 'r').read())
 
     global danmu_count
     global ad
@@ -460,7 +462,7 @@ async def run():
                         msg += ' 么么哒~'
                 except Exception as e:
                     print(e)
-                await thx_danmu(msg, thx_dic['roomid'])
+                # await thx_danmu(msg, thx_dic['roomid'])
             else:
                 thx_queue.put(thx_dic)
 
