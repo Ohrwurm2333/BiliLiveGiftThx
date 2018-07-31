@@ -32,7 +32,9 @@ import queue
 
 '''
 
-ad = '喜欢叶叶的点一下关注啦~群在左下角~上船福利在简介~啦啦啦'
+ad = '喜欢叶叶的点个关注~有小礼物的可以喂给叶叶~嘻嘻嘻'
+delay_ad = 10
+last_danmu = 0
 danmu_count = 0
 
 thx_queue = queue.Queue()
@@ -160,6 +162,7 @@ async def printDanMu(dic):
 
     global danmu_count
     global ad
+    global last_danmu
     cmd = dic['cmd']
     str_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
 
@@ -184,9 +187,9 @@ async def printDanMu(dic):
             return
 
         danmu_count += 1
-        if danmu_count % 25 == 0:
+        if danmu_count % 25 == 0 and time.time() - last_danmu > delay_ad:
             await send_ad(ad)
-
+        last_danmu = time.time()
         # 黑名单检测
         # try:
         for d in pattern_black_list:
@@ -213,6 +216,7 @@ async def printDanMu(dic):
                 print(e)
             except Exception as e:
                 print(e)
+
         return
 
 async def send_ad(ad):
