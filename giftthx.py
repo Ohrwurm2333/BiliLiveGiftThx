@@ -238,7 +238,7 @@ async def printDanMu(dic):
                 l = len(content)
                 if p / l >= d['percent']:
                     print(p/l)
-                    await bilibili.request_send_danmu_msg_web('上车请加勋章群622425728，发送勋章截图给任一管理进群哦', roomid)
+                    await bilibili.request_send_danmu_msg_web('上车请加勋章群622425728，发送勋章截图给任一管理进群哦', str(roomid))
             except IndexError:
                 print(e)
             except Exception as e:
