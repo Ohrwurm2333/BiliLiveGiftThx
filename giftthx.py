@@ -210,6 +210,7 @@ async def printDanMu(dic):
                 p = len(p)
                 l = len(content)
                 if p / l >= d['percent']:
+                    print(p/l)
                     block_message = f'block: {author_uname} because {content} {p/l}'
                     open('danmu.log', 'a').write(block_message + '\n')
                     print(block_message)
@@ -236,12 +237,8 @@ async def printDanMu(dic):
                 p = len(p)
                 l = len(content)
                 if p / l >= d['percent']:
-                    # block_message = f'block: {author_uname} because {content} {p/l}'
-                    # open('danmu.log', 'a').write(block_message + '\n')
-                    # print(block_message)
-                    # response = await bilibili.room_block_user(roomid, 1, author_uname, 720)
+                    print(p/l)
                     await bilibili.request_send_danmu_msg_web('上车请加勋章群622425728，发送勋章截图给任一管理进群哦', roomid)
-                    print(response)
             except IndexError:
                 print(e)
             except Exception as e:
