@@ -158,7 +158,9 @@ async def printDanMu(dic):
 
     ]
 
-    pattern_black_list = json.loads(open('block.json', 'r').read())
+    data_list = json.loads(open('data.json', 'r').read())
+    pattern_black_list = data_list.get('block')
+    car_list = data_list.get('car')
 
     global danmu_count
     global ad
@@ -212,6 +214,33 @@ async def printDanMu(dic):
                     open('danmu.log', 'a').write(block_message + '\n')
                     print(block_message)
                     response = await bilibili.room_block_user(roomid, 1, author_uname, 720)
+                    await bilibili.request_send_danmu_msg_web('auto block user[%s]' % author_uname, roomid)
+                    print(response)
+            except IndexError:
+                print(e)
+            except Exception as e:
+                print(e)
+
+        for d in car_list:
+            try:
+                p = ''
+                _ = re.findall(d['pattern'], content)
+                while(1):
+                    if len(_) == 0:
+                        break
+                    p = _[0]
+                    print(p)
+                    if type(p) == type(''):
+                        break
+                    _ = p
+                p = len(p)
+                l = len(content)
+                if p / l >= d['percent']:
+                    # block_message = f'block: {author_uname} because {content} {p/l}'
+                    # open('danmu.log', 'a').write(block_message + '\n')
+                    # print(block_message)
+                    # response = await bilibili.room_block_user(roomid, 1, author_uname, 720)
+                    await bilibili.request_send_danmu_msg_web('上车请加勋章群622425728，发送勋章截图给任一管理进群哦', roomid)
                     print(response)
             except IndexError:
                 print(e)
@@ -221,6 +250,7 @@ async def printDanMu(dic):
         return
 
 async def send_ad(ad):
+    await asyncio.sleep(5)
     await thx_danmu(ad)
 
 class bilibiliClient():
