@@ -217,32 +217,35 @@ async def printDanMu(dic):
                     response = await bilibili.room_block_user(roomid, 1, author_uname, 720)
                     await thx_danmu('auto block user[%s]' % author_uname)
                     print(response)
+                    return
             except IndexError:
                 print(e)
             except Exception as e:
                 print(e)
 
         for d in car_list:
-            try:
-                p = ''
-                _ = re.findall(d['pattern'], content)
-                while(1):
-                    if len(_) == 0:
-                        break
-                    p = _[0]
-                    print(p)
-                    if type(p) == type(''):
-                        break
-                    _ = p
-                p = len(p)
-                l = len(content)
-                if p / l >= d['percent']:
-                    print(p/l)
-                    await thx_danmu('上车请加勋章群622425728，发送勋章截图给任一管理进群哦')
-            except IndexError:
-                print(e)
-            except Exception as e:
-                print(e)
+            # try:
+            p = ''
+            _ = re.findall(d['pattern'], content)
+            while(1):
+                if len(_) == 0:
+                    break
+                p = _[0]
+                print(p)
+                if type(p) == type(''):
+                    break
+                _ = p
+            p = len(p)
+            l = len(content)
+            if p / l >= d['percent']:
+                print(p/l)
+                response = await thx_danmu('上车请加勋章群622425728，把勋章截图给管理进群哦')
+                print(response)
+                return
+            # except IndexError:
+            #     print(e)
+            # except Exception as e:
+            #     print(e)
 
         return
 
