@@ -15,21 +15,21 @@ import sys
 
 async def DanMuraffle(area_id, connect_roomid, dic):
     cmd = dic['cmd']
-    
+
     if cmd == 'PREPARING':
         printer.info([f'{area_id}号弹幕监控房间下播({connect_roomid})'], True)
         return False
     elif cmd == 'SYS_GIFT':
         if 'giftId' in dic:
             if str(dic['giftId']) in bilibili.get_giftids_raffle_keys():
-                
+
                 text1 = dic['real_roomid']
                 text2 = dic['url']
                 giftId = dic['giftId']
                 printer.info(["检测到房间{:^9}的{}活动抽奖".format(text1, bilibili.get_giftids_raffle(str(giftId)))], True)
                 rafflehandler.Rafflehandler.Put2Queue((giftId, text1, text2), rafflehandler.handle_1_room_activity)
                 Statistics.append2pushed_raffle('活动', area_id=area_id)
-                        
+
             elif dic['giftId'] == 39:
                 printer.info(["节奏风暴"], True)
                 temp = await bilibili.get_giftlist_of_storm(dic)
@@ -49,10 +49,10 @@ async def DanMuraffle(area_id, connect_roomid, dic):
                     printer.info(["检测到房间{:^9}的{}活动抽奖".format(text1, bilibili.get_giftids_raffle(str(giftId)))], True)
                     rafflehandler.Rafflehandler.Put2Queue((giftId, text1, text2), rafflehandler.handle_1_room_activity)
                     Statistics.append2pushed_raffle('活动', area_id=area_id)
-                            
+
                 except:
                     printer.info([dic, "请联系开发者"])
-                
+
         else:
             printer.info(['普通送礼提示', dic['msg_text']])
         return
@@ -64,7 +64,7 @@ async def DanMuraffle(area_id, connect_roomid, dic):
             rafflehandler.Rafflehandler.Put2Queue((real_roomid,), rafflehandler.handle_1_room_TV)
             rafflehandler.Rafflehandler.Put2Queue((real_roomid,), rafflehandler.handle_1_room_activity)
             Statistics.append2pushed_raffle(type_text, area_id=area_id)
-            
+
     elif cmd == 'GUARD_MSG':
         a = re.compile(r"(?<=在主播 )\S+(?= 的直播间开通了总督)")
         res = re.search(a, dic['msg'])
@@ -73,8 +73,8 @@ async def DanMuraffle(area_id, connect_roomid, dic):
             printer.info([f'{area_id}号弹幕监控检测到{name:^9}的总督'], True)
             rafflehandler.Rafflehandler.Put2Queue((((name,), utils.find_live_user_roomid),), rafflehandler.handle_1_room_captain)
             Statistics.append2pushed_raffle('总督', area_id=area_id)
-        
-  
+
+
 def printDanMu(dic):
     cmd = dic['cmd']
     # print(cmd)
@@ -82,10 +82,10 @@ def printDanMu(dic):
         # print(dic)
         Printer().print_danmu(dic)
         return
-                                                          
+
 
 class bilibiliClient():
-    
+
     __slots__ = ('ws', 'connected', 'roomid', 'raffle_handle', 'area_id', 'structer')
 
     def __init__(self, roomid=None, area_id=None):
@@ -109,7 +109,7 @@ class bilibiliClient():
             print('请联系开发者', sys.exc_info()[0], sys.exc_info()[1])
         printer.info([f'{self.area_id}号弹幕收尾模块状态{self.ws.closed}'], True)
         self.connected = False
-        
+
     async def CheckArea(self):
         try:
             while self.connected:
@@ -121,7 +121,7 @@ class bilibiliClient():
         except asyncio.CancelledError:
             printer.info([f'{self.area_id}号弹幕监控分区检测模块主动取消'], True)
             self.connected = False
-        
+
     async def connectServer(self):
         try:
             self.ws = await websockets.connect('wss://broadcastlv.chat.bilibili.com/sub', timeout=3)
@@ -189,10 +189,10 @@ class bilibiliClient():
             self.connected = False
             return None
         # print(tmp)
-           
+
         # print('测试0', bytes_data)
         return bytes_data
-    
+
     async def ReceiveMessageLoop(self):
         if self.raffle_handle:
             while True:
@@ -221,11 +221,11 @@ class bilibiliClient():
                     else:
                         self.connected = False
                         printer.warn(bytes_datas[len_read:len_read + len_data])
-                                
+
                     if state is not None and not state:
                         return
                     len_read += len_data
-                    
+
         else:
             while True:
                 bytes_datas = await self.ReadSocketData()
@@ -254,12 +254,7 @@ class bilibiliClient():
                     else:
                         self.connected = False
                         printer.warn(bytes_datas[len_read:len_read + len_data])
-                                
+
                     if state is not None and not state:
                         return
                     len_read += len_data
-                  
-                    
-                    
-               
-    

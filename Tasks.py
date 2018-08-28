@@ -1,9 +1,10 @@
 from bilibili import bilibili
+from bilitimer import BiliTimer
 import asyncio
 from configloader import ConfigLoader
 import utils
 import printer
-from bilitimer import BiliTimer
+
 import random
 import re
 import json
@@ -83,7 +84,7 @@ async def send_gift():
                 print('正在投递其他勋章')
                 list_medal = await utils.fetch_medal(show=False)
                 list_gift = await full_intimate(list_gift, list_medal)
-                
+
             print('正在清理过期礼物到指定房间')
             for i in list_gift:
                 giftID = i[0]
@@ -105,7 +106,7 @@ async def auto_send_gift():
             # await BiliTimer.append2list_jobs(auto_send_gift, 21600)
     if ConfigLoader().dic_user['task_control']['send2medal']:
         list_medal += await utils.fetch_medal(False, ConfigLoader().dic_user['task_control']['send2medal'])
-    # print(list_medal)    
+    # print(list_medal)
     print('正在投递勋章')
     temp = await utils.fetch_bag_list(show=False)
     # print(temp)
@@ -116,7 +117,7 @@ async def auto_send_gift():
         if (gift_id not in [4, 3, 9, 10]) and left_time is not None:
             list_gift.append(i[:3])
     await full_intimate(list_gift, list_medal)
-            
+
     # printer.info(["# 自动送礼共送出亲密度为%s的礼物" % int(calculate)])
     await BiliTimer.append2list_jobs(auto_send_gift, 21600)
 
@@ -224,7 +225,7 @@ async def check(id):
     # 1 封杀 votebreak
     text_rsp = await bilibili().req_check_voted(id)
     # print(response.text)
-        
+
     pattern = re.compile(r'\((.+)\)')
     match = pattern.findall(text_rsp)
     temp = json.loads(match[0])
@@ -258,8 +259,8 @@ async def check(id):
         elif percent <= 0.03:
             vote = 4
     return vote
- 
-               
+
+
 async def judge():
     num_case = 0
     num_voted = 0
@@ -278,13 +279,13 @@ async def judge():
         num_case += 1
         if vote != 3:
             num_voted += 1
-        
+
         print('______________________________')
         # await asyncio.sleep(1)
-    
+
     printer.info([f'风纪委员会共获取{num_case}件案例，其中有效投票{num_voted}件'], True)
     await BiliTimer.append2list_jobs(judge, 3600)
-        
+
 
 async def init():
     await BiliTimer.append2list_jobs(sliver2coin, 0)
@@ -297,4 +298,3 @@ async def init():
     await BiliTimer.append2list_jobs(auto_send_gift, 0)
     await BiliTimer.append2list_jobs(BiliMainTask, 0)
     await BiliTimer.append2list_jobs(judge, 0)
-    

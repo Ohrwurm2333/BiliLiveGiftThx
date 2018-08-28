@@ -38,6 +38,9 @@ keep-login = true
 # 默认监听房间号
 default_monitor_roomid = 253774
 
+
+
+
 # 房管助手房间
-gift_thx_roomid = 253774
+# gift_thx_roomid = 253774
 # gift_thx_roomid = 3607215

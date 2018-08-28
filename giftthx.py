@@ -20,18 +20,6 @@ import sys
 import queue
 
 
-# Cen喵喵 薇尔莉特xx 小书童666
-'''
-{
-    t: time.time()   -> int
-    giftname:
-    num:
-    uname:
-
-}
-
-'''
-
 ad = '喜欢叶叶的点个关注~有小礼物的可以喂给叶叶~嘻嘻嘻'
 delay_ad = 10
 last_danmu = 0
@@ -503,5 +491,7 @@ async def run():
 
         await asyncio.sleep(1)
 
-async def thx_danmu(msg, roomid=253774):
+async def thx_danmu(msg, roomid=None):
+    if roomid is None:
+        roomid = ConfigLoader().dic_user['other_control']['default_monitor_roomid']
     await bilibili.request_send_danmu_msg_web(msg, str(roomid))
