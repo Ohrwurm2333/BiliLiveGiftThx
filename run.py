@@ -6,6 +6,7 @@ import connect
 from rafflehandler import Rafflehandler
 from rafflehandler import Delay_Joiner
 import asyncio
+import functions
 from printer import Printer
 from statistics import Statistics
 from bilibili import bilibili
@@ -39,7 +40,7 @@ biliconsole.Biliconsole(loop, queue)
 # list_raffle_connection_task = [i.run() for i in list_raffle_connection]
 
 # danmu_connection = connect.connect()
-gift_connection = giftthx.GiftConnect()
+gift_connection = functions.GiftConnect()
 gift_connection_task = [gift_connection.run()]
 
 bili_timer = BiliTimer()
