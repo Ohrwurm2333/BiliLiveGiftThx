@@ -24,8 +24,9 @@ class Live(Base):
     gift = Column(String(32), index=True, nullable=True)    # 礼物
     num = Column(String(32), index=True, nullable=True) # 礼物数量
     price = Column(Integer, index=True, nullable=True)  # 礼物价值
+    coin_type = Column(String(32), index=True, nullable=True) # 礼物类型
     time = Column(DateTime, index=True, default=datetime.datetime.now())
-    content = Column(String(240), nullable=True)    # 弹幕内容
+    content = Column(String(360), nullable=True)    # 弹幕内容
 
 
 

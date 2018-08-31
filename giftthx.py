@@ -82,21 +82,24 @@ class GiftConnect():
 async def DanMuraffle(area_id, connect_roomid, dic):
     cmd = dic['cmd']
     if cmd == 'SEND_GIFT':
-        # print(dic)
         num = dic.get('data').get('num')
         uname = dic.get('data').get('uname')
         uid = dic.get('data').get('uid')
         giftName = dic.get('data').get('giftName')
         coin_type = dic.get('data').get('coin_type')
+        gift_id = dic['data']['giftId']
         price = dic.get('data').get('total_coin')
         db.add(Live(
             roomid=int(connect_roomid),
             cmd=cmd,
             userid=int(uid),
+            num=num,
             username=uname,
+            giftid=int(gift_id),
             gift=giftName,
             coin_type=coin_type,
-            price=price
+            price=price,
+
         ))
         db.commit()
         add_thx(uname, num, giftName, connect_roomid, coin_type)
@@ -124,7 +127,7 @@ async def DanMuraffle(area_id, connect_roomid, dic):
         uname = dic['data']['username']
         uid = dic['data']['uid']
         item = dic['data']['gift_name']
-        gift_id = dic['data']['gift_id']
+        gift_id = dic['data']['giftId']
         price = dic['data']['price']
         num = dic['data']['num']
         msg = '普天同庆! [%s]开通了[%s] 哇哇哇~' % (uname, item)
@@ -141,9 +144,30 @@ async def DanMuraffle(area_id, connect_roomid, dic):
         ))
         db.commit()
         await thx_danmu(msg, connect_roomid)
-    elif cmd in ['SYS_GIFT', 'SYS_MSG', 'GUARD_MSG', 'ENTRY_EFFECT', 'COMBO_SEND', 'COMBO_END', 'ROOM_RANK', 'WELCOME_GUARD']:
+    elif cmd in ['SYS_GIFT', 'ENTRY_EFFECT', 'SYS_MSG', 'GUARD_MSG', 'ENTRY_EFFECT', 'COMBO_SEND', 'COMBO_END', 'ROOM_RANK']:
         return
+    elif cmd in ['WELCOME_GUARD', 'WELCOME']:
+        try:
+            db.add(Live(
+                roomid=int(connect_roomid),
+                cmd=cmd,
+                userid=dic['data']['uid'],
+                username=dic['data']['uname'],
+            ))
+            db.commit()
+        except:
+            traceback.print_exc()
+            print(dic)
 
+    elif cmd in ['WISH_BOTTLE']:
+        db.add(Live(
+            roomid=int(connect_roomid),
+            cmd=cmd,
+            userid=0,
+            username=cmd,
+            content=json.dumps(dic['data'],ensure_ascii=False)
+        ))
+        db.commit()
     else:
         open('other.log', 'a').write(json.dumps(dic) + '\n')
 
