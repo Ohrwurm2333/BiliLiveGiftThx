@@ -34,6 +34,5 @@ mid = [207539637]
 [other_control]
 # 保持连接状态，下次再登陆不会重复登陆，读取存储的cookie重用，如要密码登陆，请手动清除bilibili.conf里面的cookie
 keep-login = true
-
 # 默认监听房间号 改这个
 default_monitor_roomid = 253774

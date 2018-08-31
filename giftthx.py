@@ -10,9 +10,10 @@ import asyncio
 import printer
 import login
 import utils
-
+from sqlapi import db, Live
 import rafflehandler
 import websockets
+import traceback
 import struct
 import json
 import re
@@ -62,69 +63,87 @@ class GiftConnect():
             task_heartbeat = asyncio.ensure_future(self.danmuji.HeartbeatLoop())
             task_checkarea = asyncio.ensure_future(self.danmuji.CheckArea())
             finished, pending = await asyncio.wait([task_main, task_heartbeat, task_checkarea], return_when=asyncio.FIRST_COMPLETED)
-            # print('# 弹幕姬异常或主动断开，处理完剩余信息后重连')
+            print('# 弹幕姬异常或主动断开，处理完剩余信息后重连')
             self.danmuji.connected = False
             time_end = int(utils.CurrentTime())
             if not task_heartbeat.done():
                 task_heartbeat.cancel()
                 await self.danmuji.close_connection()
-                # print('# 弹幕主程序退出，立即取消心跳模块')
+                print('# 弹幕主程序退出，立即取消心跳模块')
             else:
                 await asyncio.wait(pending)
-                # print('# 弹幕心跳模块退出，主程序剩余任务处理完毕')
+                print('# 弹幕心跳模块退出，主程序剩余任务处理完毕')
             if time_end - time_start < 5:
-                # print('# 当前网络不稳定，为避免频繁不必要尝试，将自动在5秒后重试')
+                print('# 当前网络不稳定，为避免频繁不必要尝试，将自动在5秒后重试')
                 await asyncio.sleep(5)
 
 
 
 async def DanMuraffle(area_id, connect_roomid, dic):
     cmd = dic['cmd']
-
-    # if cmd == 'PREPARING':
-    #     printer.info([f'{area_id}号弹幕监控房间下播({connect_roomid})'], True)
-    #     return False
-    if cmd == 'SYS_GIFT':
-        if 'giftId' in dic:
-            if str(dic['giftId']) in bilibili.get_giftids_raffle_keys():
-                pass
-        else:
-            print(dic)
-            open('sys_gift.log', 'a').write(json.dumps(dic) + '\n')
-            # printer.info(['普通送礼提示', dic['msg_text']])
-        return
-    elif cmd == 'SEND_GIFT':
+    if cmd == 'SEND_GIFT':
         # print(dic)
-        open('send_gift.log', 'a').write(json.dumps(dic))
         num = dic.get('data').get('num')
         uname = dic.get('data').get('uname')
+        uid = dic.get('data').get('uid')
         giftName = dic.get('data').get('giftName')
         coin_type = dic.get('data').get('coin_type')
+        price = dic.get('data').get('total_coin')
+        db.add(Live(
+            roomid=int(connect_roomid),
+            cmd=cmd,
+            userid=int(uid),
+            username=uname,
+            gift=giftName,
+            coin_type=coin_type,
+            price=price
+        ))
+        db.commit()
         add_thx(uname, num, giftName, connect_roomid, coin_type)
 
-
-
-    elif cmd == 'SYS_MSG':
-        pass
-
-
-    elif cmd == 'GUARD_MSG':
-        pass
-        # print(dic)
-        # a = re.compile(r"(?<=在主播 )\S+(?= 的直播间开通了总督)")
-        # res = re.search(a, dic['msg'])
-        # if res is not None:
-        #     name = str(res.group())
-        #     printer.info([f'{area_id}号弹幕监控检测到{name:^9}的总督'], True)
-        #     rafflehandler.Rafflehandler.Put2Queue((((name,), utils.find_live_user_roomid),), rafflehandler.handle_1_room_captain)
-        #     Statistics.append2pushed_raffle('总督', area_id=area_id)
     elif cmd == 'DANMU_MSG':
+        send_time = dic['info'][0][4]
+        author_uid = dic['info'][2][0]
+        author_uname = dic['info'][2][1]
+        content = dic['info'][1]
+
+        try:
+            db.add(Live(
+                roomid=int(connect_roomid),
+                cmd=cmd,
+                time=datetime.datetime.fromtimestamp(int(send_time)),
+                userid=author_uid,
+                username=author_uname,
+                content=content
+            ))
+            db.commit()
+        except:
+            traceback.print_exc()
         await printDanMu(dic)
     elif cmd == 'GUARD_BUY':
         uname = dic['data']['username']
+        uid = dic['data']['uid']
         item = dic['data']['gift_name']
+        gift_id = dic['data']['gift_id']
+        price = dic['data']['price']
+        num = dic['data']['num']
         msg = '普天同庆! [%s]开通了[%s] 哇哇哇~' % (uname, item)
+        db.add(Live(
+            roomid=int(connect_roomid),
+            cmd=cmd,
+            userid=int(uid),
+            username=uname,
+            giftid=int(gift_id),
+            gift=item,
+            num=num,
+            coin_type='gold',
+            price=price
+        ))
+        db.commit()
         await thx_danmu(msg, connect_roomid)
+    elif cmd in ['SYS_GIFT', 'SYS_MSG', 'GUARD_MSG', 'ENTRY_EFFECT', 'COMBO_SEND', 'COMBO_END', 'ROOM_RANK', 'WELCOME_GUARD']:
+        return
+
     else:
         open('other.log', 'a').write(json.dumps(dic) + '\n')
 
@@ -134,17 +153,6 @@ async def printDanMu(dic):
     # print(dic)
 
     f = 'block.json'
-    pattern_black_list = [
-        # {
-        #     'pattern': '^\?\?\?$',
-        #     'percent': 1,
-        # },
-        {
-            'pattern': '^.*?((主播|up|你).*?真?(菜|辣鸡|垃圾)).*$',
-            'percent': 0.7,
-        }
-
-    ]
 
     data_list = json.loads(open('data.json', 'r').read())
     pattern_black_list = data_list.get('block')
@@ -171,7 +179,7 @@ async def printDanMu(dic):
         output = f'[{send_time_str}]{author_uname}({author_uid}):{content}'
 
         print(output)
-        open('danmus.log', 'a').write(output + '\n')
+        # open('danmus.log', 'a').write(output + '\n')
 
         if '感谢[' in content or ad == content:
             return
@@ -181,8 +189,7 @@ async def printDanMu(dic):
             danmu_count = 0
             await send_ad(ad)
         last_danmu = time.time()
-        # 黑名单检测
-        # try:
+
         for d in pattern_black_list:
             try:
                 p = ''
@@ -200,8 +207,8 @@ async def printDanMu(dic):
                 if p / l >= d['percent']:
                     print(p/l)
                     block_message = f'block: {author_uname} because {content} {p/l}'
-                    open('danmu.log', 'a').write(block_message + '\n')
-                    print(block_message)
+                    # open('danmu.log', 'a').write(block_message + '\n')
+                    # print(block_message)
                     response = await bilibili.room_block_user(roomid, 1, author_uname, 720)
                     await thx_danmu('auto block user[%s]' % author_uname)
                     print(response)
@@ -230,10 +237,6 @@ async def printDanMu(dic):
                 response = await thx_danmu('上车请加勋章群622425728，把勋章截图给管理进群哦')
                 print(response)
                 return
-            # except IndexError:
-            #     print(e)
-            # except Exception as e:
-            #     print(e)
 
         return
 
@@ -345,9 +348,7 @@ class bilibiliClient():
             # print('请联系开发者')
             self.connected = False
             return None
-        # print(tmp)
 
-        # print('测试0', bytes_data)
         return bytes_data
 
     async def ReceiveMessageLoop(self):
@@ -436,14 +437,11 @@ async def run():
     global thx_queue
     while(True):
         length = thx_queue.qsize()
-        # print('length=%d' % length)
         temp_list = []
         filter_list = []
         for i in range(length):
             temp_list.append(thx_queue.get())
-        # print('---temp_list')
-        # print(temp_list)
-        # print('---')
+
 
         for j in temp_list:
 
@@ -465,12 +463,6 @@ async def run():
             if not added:
                 filter_list.append(j)
 
-
-        #
-        # print('filter length %d' % len(filter_list))
-        # print('---filter_list')
-        # print(filter_list)
-        # print('---')
 
         for _ in range(len(filter_list)):
             thx_dic = filter_list[_]
@@ -494,4 +486,5 @@ async def run():
 async def thx_danmu(msg, roomid=None):
     if roomid is None:
         roomid = ConfigLoader().dic_user['other_control']['default_monitor_roomid']
-    await bilibili.request_send_danmu_msg_web(msg, str(roomid))
+    await asyncio.sleep(0.1)
+    # await bilibili.request_send_danmu_msg_web(msg, str(roomid))
