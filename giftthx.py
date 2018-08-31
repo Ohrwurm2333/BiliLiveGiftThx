@@ -366,7 +366,6 @@ class bilibiliClient():
                     remain_data = bytes_datas[len_read+16:len_read+len_data]
                     # 人气值/心跳 3s间隔
                     if opt == 3:
-                        # self._UserCount, = struct.unpack('!I', remain_data)
                         pass
                     # cmd
                     elif opt == 5:
@@ -398,8 +397,6 @@ class bilibiliClient():
                     remain_data = bytes_datas[len_read+16:len_read+len_data]
                     # 人气值/心跳 3s间隔
                     if opt == 3:
-                        # _UserCount, = struct.unpack('!I', remain_data)
-                        # print('心跳信息', _UserCount)
                         pass
                     # cmd
                     elif opt == 5:
@@ -456,9 +453,7 @@ async def run():
                         't': time.time(),
                         'num': ans.get('num') + j.get('num'),
                     })
-                    # print(ans)
                     added = True
-                # print(filter_list)
                 break
             if not added:
                 filter_list.append(j)
@@ -466,7 +461,6 @@ async def run():
 
         for _ in range(len(filter_list)):
             thx_dic = filter_list[_]
-            # print(time.time() - thx_dic['t'], thx_dic['giftName'], thx_dic['num'])
             if time.time() - thx_dic['t'] > 5:
                 try:
                     if 'lc4t' in thx_dic['uname']:
@@ -486,5 +480,4 @@ async def run():
 async def thx_danmu(msg, roomid=None):
     if roomid is None:
         roomid = ConfigLoader().dic_user['other_control']['default_monitor_roomid']
-    await asyncio.sleep(0.1)
-    # await bilibili.request_send_danmu_msg_web(msg, str(roomid))
+    await bilibili.request_send_danmu_msg_web(msg, str(roomid))
