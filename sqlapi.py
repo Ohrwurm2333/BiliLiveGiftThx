@@ -7,6 +7,7 @@ from configloader import ConfigLoader
 import datetime
 Base = declarative_base()
 c = "mysql+pymysql://USERNAME:PASSWORD@IP:PORT/DB?charset=utf8"
+
 engine = create_engine(c, max_overflow=5)
 
 
