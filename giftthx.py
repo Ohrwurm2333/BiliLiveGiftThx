@@ -29,15 +29,15 @@ danmu_count = 0
 thx_queue = queue.Queue()
 
 async def db_adder(x=1, **kwargs):
-    # db = session()
-    # try:
-    #     db.add(Live(
-    #         **kwargs
-    #     ))
-    #     db.commit()
-    # except:
-    #     db.rollback()
-    #     traceback.print_exc()
+    db = session()
+    try:
+        db.add(Live(
+            **kwargs
+        ))
+        db.commit()
+    except:
+        db.rollback()
+        traceback.print_exc()
     await asyncio.sleep(0.1)
 
 
