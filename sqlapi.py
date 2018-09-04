@@ -4,7 +4,9 @@ from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, In
 from sqlalchemy.orm import sessionmaker, relationship
 from configloader import ConfigLoader
 
+
 import datetime
+import time
 Base = declarative_base()
 c = "mysql+pymysql://USERNAME:PASSWORD@IP:PORT/DB?charset=utf8"
 
@@ -26,7 +28,7 @@ class Live(Base):
     num = Column(String(32), index=True, nullable=True) # 礼物数量
     price = Column(Integer, index=True, nullable=True)  # 礼物价值
     coin_type = Column(String(32), index=True, nullable=True) # 礼物类型
-    time = Column(DateTime, index=True, default=datetime.datetime.now())
+    time = Column(DateTime, index=True, default=datetime.datetime.fromtimestamp(int(time.time())))
     content = Column(String(360), nullable=True)    # 弹幕内容
 
 
