@@ -10,7 +10,7 @@ import asyncio
 import printer
 import login
 import utils
-from sqlapi import db, Live
+from sqlapi import session, Live
 import rafflehandler
 import websockets
 import traceback
@@ -28,11 +28,21 @@ danmu_count = 0
 
 thx_queue = queue.Queue()
 
-
-
+async def db_adder(x=1, **kwargs):
+    # db = session()
+    # try:
+    #     db.add(Live(
+    #         **kwargs
+    #     ))
+    #     db.commit()
+    # except:
+    #     db.rollback()
+    #     traceback.print_exc()
+    await asyncio.sleep(0.1)
 
 
 async def DanMuraffle(area_id, connect_roomid, dic):
+    # print('danmuraffle')
     cmd = dic['cmd']
     if cmd == 'SEND_GIFT':
         num = dic.get('data').get('num')
@@ -42,7 +52,8 @@ async def DanMuraffle(area_id, connect_roomid, dic):
         coin_type = dic.get('data').get('coin_type')
         gift_id = dic['data']['giftId']
         price = dic.get('data').get('total_coin')
-        db.add(Live(
+        # db = session()
+        await db_adder(
             roomid=int(connect_roomid),
             cmd=cmd,
             userid=int(uid),
@@ -52,9 +63,7 @@ async def DanMuraffle(area_id, connect_roomid, dic):
             gift=giftName,
             coin_type=coin_type,
             price=price,
-
-        ))
-        db.commit()
+        )
         add_thx(uname, num, giftName, connect_roomid, coin_type)
 
     elif cmd == 'DANMU_MSG':
@@ -63,20 +72,19 @@ async def DanMuraffle(area_id, connect_roomid, dic):
         author_uname = dic['info'][2][1]
         content = dic['info'][1]
 
+        await db_adder(
+            roomid=int(connect_roomid),
+            cmd=cmd,
+            time=datetime.datetime.fromtimestamp(int(send_time)),
+            userid=author_uid,
+            username=author_uname,
+            content=content
+            )
         try:
-            db.add(Live(
-                roomid=int(connect_roomid),
-                cmd=cmd,
-                time=datetime.datetime.fromtimestamp(int(send_time)),
-                userid=author_uid,
-                username=author_uname,
-                content=content
-            ))
-            db.commit()
-        except:
-            traceback.print_exc()
-        try:
-            await DanMuMsgHandle(dic)
+            # print('DanMuMsgHandle')
+            loop = asyncio.get_event_loop()
+            asyncio.run_coroutine_threadsafe(DanMuMsgHandle(dic), loop)
+            # print('DanMuMsgHandle done')
         except:
             traceback.print_exc()
     elif cmd == 'GUARD_BUY':
@@ -87,7 +95,9 @@ async def DanMuraffle(area_id, connect_roomid, dic):
         price = dic['data']['price']
         num = dic['data']['num']
         msg = '普天同庆! [%s]开通了[%s] 哇哇哇~' % (uname, item)
-        db.add(Live(
+
+
+        await db_adder(
             roomid=int(connect_roomid),
             cmd=cmd,
             userid=int(uid),
@@ -96,37 +106,33 @@ async def DanMuraffle(area_id, connect_roomid, dic):
             gift=item,
             num=num,
             coin_type='gold',
-            price=price
-        ))
-        db.commit()
+            price=price)
+
         await thx_danmu(msg, connect_roomid)
     elif cmd in ['SYS_GIFT', 'SPECIAL_GIFT', 'ENTRY_EFFECT', 'SYS_MSG', 'GUARD_MSG', 'ENTRY_EFFECT', 'COMBO_SEND', 'COMBO_END', 'ROOM_RANK']:
-        return
+        pass
+        # return
     elif cmd in ['WELCOME_GUARD', 'WELCOME']:
-        try:
-            username = dic['data']['uname'] if cmd =='WELCOME' else dic['data']['username']
-            db.add(Live(
-                roomid=int(connect_roomid),
-                cmd=cmd,
-                userid=dic['data']['uid'],
-                username=username,
-            ))
-            db.commit()
-        except:
-            traceback.print_exc()
-            print(dic)
+        username = dic['data']['uname'] if cmd =='WELCOME' else dic['data']['username']
+        await db_adder(
+            roomid=int(connect_roomid),
+            cmd=cmd,
+            userid=dic['data']['uid'],
+            username=username,
+        )
+
 
     elif cmd in ['WISH_BOTTLE']:
-        db.add(Live(
+        await db_adder(
             roomid=int(connect_roomid),
             cmd=cmd,
             userid=0,
             username=cmd,
             content=json.dumps(dic['data'],ensure_ascii=False)
-        ))
-        db.commit()
+        )
     else:
         open('other.log', 'a').write(json.dumps(dic) + '\n')
+    # print('danmuraffle done')
 
 
 
@@ -286,10 +292,14 @@ async def run():
 
 
 async def thx_danmu(msg, roomid=None):
+    loop = asyncio.get_event_loop()
+
     if roomid is None:
         roomid = ConfigLoader().dic_user['other_control']['default_monitor_roomid']
     if len(str(roomid)) < 6:
         real_roomid = await check_room(roomid)
     else:
         real_roomid = roomid
-    json_response = await bilibili.request_send_danmu_msg_web(msg, real_roomid)
+    # print(msg, roomid)
+    asyncio.run_coroutine_threadsafe(bilibili.request_send_danmu_msg_web(msg, real_roomid), loop)
+    # json_response = await bilibili.request_send_danmu_msg_web(msg, real_roomid)

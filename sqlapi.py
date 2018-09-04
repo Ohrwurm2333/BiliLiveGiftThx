@@ -49,7 +49,7 @@ init_db()
 
 
 
-Session = sessionmaker(bind=engine) # 指定引擎
-db = Session()
+session = sessionmaker(bind=engine) # 指定引擎
+db = session()
 # db.add(xx)
 # db.commit()

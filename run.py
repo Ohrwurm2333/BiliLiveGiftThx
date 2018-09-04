@@ -17,6 +17,7 @@ import login
 import biliconsole
 from bilitimer import BiliTimer
 import giftthx
+import traceback
 
 
 loop = asyncio.get_event_loop()
@@ -25,7 +26,7 @@ fileDir = os.path.dirname(os.path.realpath('__file__'))
 file_color = f'{fileDir}/conf/color.toml'
 file_user = f'{fileDir}/conf/user.toml'
 file_bilibili = f'{fileDir}/conf/bilibili.toml'
-ConfigLoader(colorfile=file_color, userfile=file_user, bilibilifile=file_bilibili)
+ConfigLoader(fileDir)
 
 # print('Hello world.')
 printer = Printer()
@@ -70,6 +71,8 @@ except KeyboardInterrupt:
         pass
     else:
         response = login.logout()
+except:
+    traceback.print_exc()
 
 console_thread.join()
 
