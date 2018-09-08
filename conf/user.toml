@@ -2,8 +2,8 @@
 platform = "others"
 
 [print_control]
-danmu = true
-debug = true
+danmu = false
+debug = false
 
 [task_control]
 # 清理即将过期礼物，请true之后一定要把紧随其后的room设置为真实房间号
@@ -14,6 +14,7 @@ set-expiring-time = 43200
 clean_expiring_gift2all_medal = false
 clean-expiring-gift2room = 0
 
+# 一天最多一个硬币兑换机会
 silver2coin = false
 
 # 自动投满佩戴勋章当日亲密度
@@ -21,7 +22,7 @@ send2wearing-medal = false
 # 房间号 短房间
 send2medal = []
 
-# 老接口兑换硬币为银瓜子
+# 老接口高倍率兑换硬币为银瓜子，现已失效，请勿修改！！
 doublegain_coin2silver = false
 
 # 输入数字 0-5 表示主站自动投币
@@ -35,5 +36,12 @@ mid = [207539637]
 [other_control]
 # 保持连接状态，下次再登陆不会重复登陆，读取存储的cookie重用，如要密码登陆，请手动清除bilibili.conf里面的cookie
 keep-login = true
-# 默认监听房间号 改这个
-default_monitor_roomid = 253774
+
+# 默认监听房间号(打印弹幕)
+default_monitor_roomid = 23058
+
+# 额外自定义弹幕监控房间
+raffle_minitor_roomid = 0
+
+# gift
+gift_monitor_roomid = 253774

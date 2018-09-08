@@ -1,6 +1,7 @@
 from bilibili import bilibili
 from configloader import ConfigLoader
 import random
+import bilibiliCilent
 from utils import check_room
 from statistics import Statistics
 from printer import Printer
@@ -28,6 +29,17 @@ danmu_count = 0
 
 thx_queue = queue.Queue()
 
+
+
+
+
+
+
+
+
+
+
+
 async def db_adder(x=1, **kwargs):
     db = session()
     try:
@@ -38,101 +50,154 @@ async def db_adder(x=1, **kwargs):
     except:
         db.rollback()
         traceback.print_exc()
-    await asyncio.sleep(0.1)
+    await asyncio.sleep(0.0)
 
 
-async def DanMuraffle(area_id, connect_roomid, dic):
-    # print('danmuraffle')
-    cmd = dic['cmd']
-    if cmd == 'SEND_GIFT':
-        num = dic.get('data').get('num')
-        uname = dic.get('data').get('uname')
-        uid = dic.get('data').get('uid')
-        giftName = dic.get('data').get('giftName')
-        coin_type = dic.get('data').get('coin_type')
-        gift_id = dic['data']['giftId']
-        price = dic.get('data').get('total_coin')
-        # db = session()
-        await db_adder(
-            roomid=int(connect_roomid),
-            cmd=cmd,
-            userid=int(uid),
-            num=num,
-            username=uname,
-            giftid=int(gift_id),
-            gift=giftName,
-            coin_type=coin_type,
-            price=price,
-        )
-        add_thx(uname, num, giftName, connect_roomid, coin_type)
 
-    elif cmd == 'DANMU_MSG':
-        send_time = dic['info'][0][4]
-        author_uid = dic['info'][2][0]
-        author_uname = dic['info'][2][1]
-        content = dic['info'][1]
+class GiftConnection():
+    def __init__(self):
+        self.danmuji = None
+        self.roomid = 0
+        self.areaid = -1
 
-        await db_adder(
-            roomid=int(connect_roomid),
-            cmd=cmd,
-            time=datetime.datetime.fromtimestamp(int(send_time)),
-            userid=author_uid,
-            username=author_uname,
-            content=content
+    async def run(self):
+        self.roomid = ConfigLoader().dic_user['other_control']['gift_monitor_roomid']
+        if not self.roomid:
+            print('没写gift房间')
+            return
+        self.danmuji = GiftMonitorHandler(self.roomid, self.areaid)
+        while True:
+            print('# 正在启动直播监控弹幕姬')
+            time_start = int(utils.CurrentTime())
+            connect_results = await self.danmuji.connectServer()
+            # print(connect_results)
+            if not connect_results:
+                continue
+            task_main = asyncio.ensure_future(self.danmuji.ReceiveMessageLoop())
+            task_heartbeat = asyncio.ensure_future(self.danmuji.HeartbeatLoop())
+            finished, pending = await asyncio.wait([task_main, task_heartbeat], return_when=asyncio.FIRST_COMPLETED)
+            print('主弹幕姬异常或主动断开，正在处理剩余信息')
+            time_end = int(utils.CurrentTime())
+            if not task_heartbeat.done():
+                task_heartbeat.cancel()
+            task_terminate = asyncio.ensure_future(self.danmuji.close_connection())
+            await asyncio.wait(pending)
+            await asyncio.wait([task_terminate])
+            printer.info(['主弹幕姬退出，剩余任务处理完毕'], True)
+            if time_end - time_start < 5:
+                print('# 当前网络不稳定，为避免频繁不必要尝试，将自动在5秒后重试')
+                await asyncio.sleep(5)
+
+
+
+
+class GiftMonitorHandler(bilibiliCilent.BaseDanmu):
+    async def handle_danmu(self, dic):
+        cmd = dic['cmd']
+        if cmd == 'SEND_GIFT':
+            num = dic.get('data').get('num')
+            uname = dic.get('data').get('uname')
+            uid = dic.get('data').get('uid')
+            giftName = dic.get('data').get('giftName')
+            coin_type = dic.get('data').get('coin_type')
+            gift_id = dic['data']['giftId']
+            price = dic.get('data').get('total_coin')
+            await db_adder(
+                roomid=int(self.roomid),
+                cmd=cmd,
+                userid=int(uid),
+                num=num,
+                username=uname,
+                giftid=int(gift_id),
+                gift=giftName,
+                coin_type=coin_type,
+                price=price,
             )
-        try:
-            # print('DanMuMsgHandle')
-            loop = asyncio.get_event_loop()
-            asyncio.run_coroutine_threadsafe(DanMuMsgHandle(dic), loop)
-            # print('DanMuMsgHandle done')
-        except:
-            traceback.print_exc()
-    elif cmd == 'GUARD_BUY':
-        uname = dic['data']['username']
-        uid = dic['data']['uid']
-        item = dic['data']['gift_name']
-        gift_id = dic['data']['giftId']
-        price = dic['data']['price']
-        num = dic['data']['num']
-        msg = '普天同庆! [%s]开通了[%s] 哇哇哇~' % (uname, item)
+            add_thx(uname, num, giftName, self.roomid, coin_type)
+
+        elif cmd == 'DANMU_MSG':
+            send_time = dic['info'][0][4]
+            author_uid = dic['info'][2][0]
+            author_uname = dic['info'][2][1]
+            content = dic['info'][1]
+
+            await db_adder(
+                roomid=int(self.roomid),
+                cmd=cmd,
+                time=datetime.datetime.fromtimestamp(int(send_time)),
+                userid=author_uid,
+                username=author_uname,
+                content=content
+                )
+            try:
+                # print('DanMuMsgHandle')
+                loop = asyncio.get_event_loop()
+                asyncio.run_coroutine_threadsafe(DanMuMsgHandle(dic), loop)
+                # print('DanMuMsgHandle done')
+            except:
+                traceback.print_exc()
+        elif cmd == 'GUARD_BUY':
+            uname = dic['data']['username']
+            uid = dic['data']['uid']
+            item = dic['data']['gift_name']
+            try:
+                gift_id = dic['data']['giftId']
+            except:
+                traceback.print_exc()
+                gift_id = -1
+            price = dic['data']['price']
+            num = dic['data']['num']
+            msg = '普天同庆! [%s]开通了[%s] 哇哇哇~' % (uname, item)
 
 
-        await db_adder(
-            roomid=int(connect_roomid),
-            cmd=cmd,
-            userid=int(uid),
-            username=uname,
-            giftid=int(gift_id),
-            gift=item,
-            num=num,
-            coin_type='gold',
-            price=price)
+            await db_adder(
+                roomid=int(self.roomid),
+                cmd=cmd,
+                userid=int(uid),
+                username=uname,
+                giftid=int(gift_id),
+                gift=item,
+                num=num,
+                coin_type='gold',
+                price=price)
 
-        await thx_danmu(msg, connect_roomid)
-    elif cmd in ['SYS_GIFT', 'SPECIAL_GIFT', 'ENTRY_EFFECT', 'SYS_MSG', 'GUARD_MSG', 'ENTRY_EFFECT', 'COMBO_SEND', 'COMBO_END', 'ROOM_RANK']:
-        pass
-        # return
-    elif cmd in ['WELCOME_GUARD', 'WELCOME']:
-        username = dic['data']['uname'] if cmd =='WELCOME' else dic['data']['username']
-        await db_adder(
-            roomid=int(connect_roomid),
-            cmd=cmd,
-            userid=dic['data']['uid'],
-            username=username,
-        )
+            await thx_danmu(msg, self.roomid)
+        elif cmd in ['PREPARING', 'RAFFLE_END', 'PK_PROCESS', 'GUARD_LOTTERY_START', 'NOTICE_MSG', 'SYS_GIFT', 'SPECIAL_GIFT', 'ENTRY_EFFECT', 'SYS_MSG', 'GUARD_MSG', 'ENTRY_EFFECT', 'COMBO_SEND', 'COMBO_END', 'ROOM_RANK']:
+            pass
+            # return
+        elif cmd in ['WELCOME_GUARD', 'WELCOME']:
+            username = dic['data']['uname'] if cmd =='WELCOME' else dic['data']['username']
+            await db_adder(
+                roomid=int(self.roomid),
+                cmd=cmd,
+                userid=dic['data']['uid'],
+                username=username,
+            )
 
 
-    elif cmd in ['WISH_BOTTLE']:
-        await db_adder(
-            roomid=int(connect_roomid),
-            cmd=cmd,
-            userid=0,
-            username=cmd,
-            content=json.dumps(dic['data'],ensure_ascii=False)
-        )
-    else:
-        open('other.log', 'a').write(json.dumps(dic) + '\n')
-    # print('danmuraffle done')
+        elif cmd in ['WISH_BOTTLE']:
+            await db_adder(
+                roomid=int(self.roomid),
+                cmd=cmd,
+                userid=0,
+                username=cmd,
+                content=json.dumps(dic['data'],ensure_ascii=False)
+            )
+        elif cmd in ['LIVE']:
+            msg = '机智的迪迪机好像发现了什么了不得的东西~'
+            await thx_danmu(msg, self.roomid)
+
+        else:
+            open('other.log', 'a').write(json.dumps(dic) + '\n')
+        # print('danmuraffle done')
+
+            # Printer().print_danmu(dic)
+
+
+
+
+
+
 
 
 
@@ -295,11 +360,10 @@ async def thx_danmu(msg, roomid=None):
     loop = asyncio.get_event_loop()
 
     if roomid is None:
-        roomid = ConfigLoader().dic_user['other_control']['default_monitor_roomid']
+        roomid = ConfigLoader().dic_user['other_control']['gift_monitor_roomid']
     if len(str(roomid)) < 6:
         real_roomid = await check_room(roomid)
     else:
         real_roomid = roomid
-    # print(msg, roomid)
     asyncio.run_coroutine_threadsafe(bilibili.request_send_danmu_msg_web(msg, real_roomid), loop)
     # json_response = await bilibili.request_send_danmu_msg_web(msg, real_roomid)

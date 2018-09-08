@@ -1,12 +1,9 @@
 import OnlineHeart
 import Silver
-import LotteryResult
 import Tasks
 import connect
 from rafflehandler import Rafflehandler
-from rafflehandler import Delay_Joiner
 import asyncio
-import functions
 from printer import Printer
 from statistics import Statistics
 from bilibili import bilibili
@@ -14,18 +11,14 @@ from configloader import ConfigLoader
 import threading
 import os
 import login
-import biliconsole
+import bili_console
 from bilitimer import BiliTimer
 import giftthx
-import traceback
 
 
 loop = asyncio.get_event_loop()
-queue = asyncio.Queue()
 fileDir = os.path.dirname(os.path.realpath('__file__'))
-file_color = f'{fileDir}/conf/color.toml'
-file_user = f'{fileDir}/conf/user.toml'
-file_bilibili = f'{fileDir}/conf/bilibili.toml'
+
 ConfigLoader(fileDir)
 
 # print('Hello world.')
@@ -35,44 +28,38 @@ login.login()
 Statistics()
 
 rafflehandler = Rafflehandler()
-biliconsole.Biliconsole(loop, queue)
+var_console = bili_console.Biliconsole(loop)
 
 # list_raffle_connection = [connect.RaffleConnect(i) for i in range(1, 5)]
 # list_raffle_connection_task = [i.run() for i in list_raffle_connection]
+giftconnection = giftthx.GiftConnection()
 
 # danmu_connection = connect.connect()
-gift_connection = functions.GiftConnect()
-gift_connection_task = [gift_connection.run()]
 
-bili_timer = BiliTimer()
-delay_timer = Delay_Joiner()
 
-console_thread = threading.Thread(target=biliconsole.controler)
+# bili_timer = BiliTimer(loop)
+
+console_thread = threading.Thread(target=var_console.cmdloop)
 
 console_thread.start()
 
+# Tasks.init()
 tasks = [
     OnlineHeart.run(),
-    giftthx.run(),
     # Silver.run(),
     # danmu_connection.run(),
-    # LotteryResult.run(),
     # rafflehandler.run(),
-    biliconsole.Biliconsole.run(),
-    # bili_timer.run(),
-    # delay_timer.run()
-
+    giftconnection.run(),
+    giftthx.run(),
 ]
 try:
-    loop.run_until_complete(asyncio.wait(tasks + gift_connection_task))
+    loop.run_until_complete(asyncio.wait(tasks))
 except KeyboardInterrupt:
     # print(sys.exc_info()[0], sys.exc_info()[1])
     if ConfigLoader().dic_user['other_control']['keep-login']:
         pass
     else:
         response = login.logout()
-except:
-    traceback.print_exc()
 
 console_thread.join()
 
