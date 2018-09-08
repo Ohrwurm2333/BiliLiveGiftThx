@@ -198,6 +198,7 @@ class bilibiliClient():
                         len_read += len_data
                 except:
                     traceback.print_exc()
+                    return
     async def handle_danmu(self, dic):
 
         try:
