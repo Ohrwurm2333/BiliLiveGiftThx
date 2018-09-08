@@ -3,6 +3,7 @@ platform = "others"
 
 [print_control]
 danmu = true
+debug = true
 
 [task_control]
 # 清理即将过期礼物，请true之后一定要把紧随其后的room设置为真实房间号

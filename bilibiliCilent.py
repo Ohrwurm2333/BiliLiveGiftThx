@@ -6,6 +6,7 @@ import rafflehandler
 from configloader import ConfigLoader
 import utils
 import asyncio
+import traceback
 import websockets
 import struct
 import json
@@ -214,7 +215,10 @@ class bilibiliClient():
                     elif opt == 5:
                         messages = remain_data.decode('utf-8')
                         dic = json.loads(messages)
-                        state = await DanMuraffle(self.area_id, self.roomid, dic)
+                        try:
+                            state = await DanMuraffle(self.area_id, self.roomid, dic)
+                        except:
+                            traceback.print_exc()
                     # 握手确认
                     elif opt == 8:
                         printer.info([f'{self.area_id}号弹幕监控进入房间（{self.roomid}）'], True)
@@ -247,7 +251,10 @@ class bilibiliClient():
                     elif opt == 5:
                         messages = remain_data.decode('utf-8')
                         dic = json.loads(messages)
-                        state = printDanMu(dic)
+                        try:
+                            state = printDanMu(dic)
+                        except:
+                            traceback.print_exc()
                     # 握手确认
                     elif opt == 8:
                         printer.info([f'{self.area_id}号弹幕监控进入房间（{self.roomid}）'], True)

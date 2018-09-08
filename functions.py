@@ -45,7 +45,6 @@ class GiftConnect():
             self.roomid, self.areaid = await get_listen_room()
             self.danmuji = bilibiliClient(self.roomid, self.areaid)
             while True:
-
                 self.danmuji.roomid = self.roomid
                 printer.info(['# 正在启动礼物监控弹幕姬'], True)
                 time_start = int(utils.CurrentTime())
@@ -67,9 +66,9 @@ class GiftConnect():
                 await asyncio.wait(pending)
                 await asyncio.wait([task_terminate])
                 printer.info([f'{self.areaid}号弹幕姬退出，剩余任务处理完毕'], True)
-                if time_end - time_start < 5:
+                if time_end - time_start < 10:
                     print('# 当前网络不稳定，为避免频繁不必要尝试，将自动在5秒后重试')
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(10)
         except:
             traceback.print_exc()
 
