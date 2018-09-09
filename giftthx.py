@@ -283,8 +283,9 @@ async def DanMuMsgHandle(dic):
                 l = len(content)
                 if p / l >= d['percent']:
                     print(p/l)
+                    print(value)
                     response = await thx_danmu(value)
-                    # print(response)
+                    print(response)
                     return
         return
 
