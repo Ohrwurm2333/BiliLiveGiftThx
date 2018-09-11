@@ -20,6 +20,7 @@ import json
 import re
 import sys
 import queue
+from raven import Client
 
 
 ad = '喜欢叶叶的点个关注~有小礼物的可以喂给叶叶~嘻嘻嘻'
@@ -50,6 +51,9 @@ async def db_adder(x=1, **kwargs):
     except:
         db.rollback()
         traceback.print_exc()
+        dsn = ConfigLoader().dic_user['other_control']['sentry_dsn']
+        client = Client(dsn)
+        client.captureException()
     await asyncio.sleep(0.0)
 
 
@@ -85,6 +89,13 @@ class GiftConnection():
             await asyncio.wait([task_terminate])
             printer.info(['主弹幕姬退出，剩余任务处理完毕'], True)
             if time_end - time_start < 5:
+                dsn = ConfigLoader().dic_user['other_control']['sentry_dsn']
+                client = Client(dsn)
+                try:
+                    raise Exception('网络不稳定，重试中')
+                except:
+                    client.captureException()
+
                 print('# 当前网络不稳定，为避免频繁不必要尝试，将自动在5秒后重试')
                 await asyncio.sleep(5)
 
@@ -135,6 +146,9 @@ class GiftMonitorHandler(bilibiliCilent.BaseDanmu):
                 asyncio.run_coroutine_threadsafe(DanMuMsgHandle(dic), loop)
                 # print('DanMuMsgHandle done')
             except:
+                dsn = ConfigLoader().dic_user['other_control']['sentry_dsn']
+                client = Client(dsn)
+                client.captureException()
                 traceback.print_exc()
         elif cmd == 'GUARD_BUY':
             uname = dic['data']['username']
@@ -221,7 +235,7 @@ async def DanMuMsgHandle(dic):
         author_uname = dic['info'][2][1]
         try:
             roomid = dic['info'][3][3]  # str
-        except Exception as e:
+        except:
             roomid = ConfigLoader().dic_user['other_control']['default_monitor_roomid']
         content = dic['info'][1]
         output = f'[{send_time_str}]{author_uname}({author_uid}):{content}'
@@ -258,10 +272,11 @@ async def DanMuMsgHandle(dic):
                     await thx_danmu('auto block user[%s]' % author_uname)
                     print(response)
                     return
-            except IndexError:
-                print(e)
-            except Exception as e:
-                print(e)
+            except:
+                traceback.print_exc()
+                dsn = ConfigLoader().dic_user['other_control']['sentry_dsn']
+                client = Client(dsn)
+                client.captureException()
 
         for key, value in data_list.get('data').items():
             # car : '上车'
@@ -348,8 +363,11 @@ async def run():
                         msg = '感谢[%s]赠送的%d个%s~' % (thx_dic['uname'], thx_dic['num'], thx_dic['giftName'])
                     if thx_dic['coin_type'] == 'gold':
                         msg += ' 么么哒~'
-                except Exception as e:
-                    print(e)
+                except:
+                    traceback.print_exc()
+                    dsn = ConfigLoader().dic_user['other_control']['sentry_dsn']
+                    client = Client(dsn)
+                    client.captureException()
                 await thx_danmu(msg, thx_dic['roomid'])
             else:
                 thx_queue.put(thx_dic)

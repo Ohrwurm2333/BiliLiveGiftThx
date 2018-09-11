@@ -5,8 +5,8 @@ import printer
 from bilibili import bilibili
 from configloader import ConfigLoader
 import random
+from raven import Client
 
-     
 async def check_room_state(roomid):
     json_rsp = await bilibili.req_room_init(roomid)
     return json_rsp['data']['live_status']
@@ -19,7 +19,7 @@ async def get_one(areaid):
         if state == 1:
             printer.info([f'{areaid}号弹幕监控选择房间（{roomid}）'], True)
             return roomid
-            
+
     while True:
         json_rsp = await bilibili.req_realroomid(areaid)
         data = json_rsp['data']
@@ -33,13 +33,13 @@ async def get_one(areaid):
 class connect():
     __slots__ = ('danmuji')
     instance = None
-    
+
     def __new__(cls, *args, **kw):
         if not cls.instance:
             cls.instance = super(connect, cls).__new__(cls, *args, **kw)
             cls.instance.danmuji = None
         return cls.instance
-        
+
     async def run(self):
         self.danmuji = bilibiliCilent.DanmuPrinter()
         while True:
@@ -63,7 +63,7 @@ class connect():
             if time_end - time_start < 5:
                 print('# 当前网络不稳定，为避免频繁不必要尝试，将自动在5秒后重试')
                 await asyncio.sleep(5)
-    
+
     @staticmethod
     async def reconnect(roomid):
         ConfigLoader().dic_user['other_control']['default_monitor_roomid'] = roomid
@@ -71,14 +71,14 @@ class connect():
         if connect.instance.danmuji is not None:
             connect.instance.danmuji.roomid = roomid
             await connect.instance.danmuji.close_connection()
-        
-        
+
+
 class RaffleConnect():
     def __init__(self, areaid):
         self.danmuji = None
         self.roomid = 0
         self.areaid = areaid
-        
+
     async def run(self):
         self.danmuji = bilibiliCilent.DanmuRaffleHandler(self.roomid, self.areaid)
         while True:
@@ -105,15 +105,22 @@ class RaffleConnect():
             printer.info([f'{self.areaid}号弹幕姬退出，剩余任务处理完毕'], True)
             if time_end - time_start < 5:
                 print('# 当前网络不稳定，为避免频繁不必要尝试，将自动在5秒后重试')
+                dsn = ConfigLoader().dic_user['other_control']['sentry_dsn']
+                client = Client(dsn)
+                try:
+                    raise Exception('网络不稳定，重试中')
+                except:
+                    client.captureException()
+
                 await asyncio.sleep(5)
-                
-                
+
+
 class YjConnection():
     def __init__(self):
         self.danmuji = None
         self.roomid = 0
         self.areaid = -1
-        
+
     async def run(self):
         self.roomid = ConfigLoader().dic_user['other_control']['raffle_minitor_roomid']
         if not self.roomid:
@@ -141,8 +148,3 @@ class YjConnection():
             if time_end - time_start < 5:
                 print('# 当前网络不稳定，为避免频繁不必要尝试，将自动在5秒后重试')
                 await asyncio.sleep(5)
-            
-            
-
-        
-                    

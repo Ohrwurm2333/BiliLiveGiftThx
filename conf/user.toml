@@ -45,3 +45,5 @@ raffle_minitor_roomid = 0
 
 # gift
 gift_monitor_roomid = 253774
+
+sentry_dsn = ""
