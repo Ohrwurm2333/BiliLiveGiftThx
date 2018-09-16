@@ -157,6 +157,9 @@ class GiftMonitorHandler(bilibiliCilent.BaseDanmu):
             try:
                 gift_id = dic['data']['giftId']
             except:
+                dsn = ConfigLoader().dic_user['other_control']['sentry_dsn']
+                client = Client(dsn)
+                client.captureException()
                 traceback.print_exc()
                 gift_id = -1
             price = dic['data']['price']
