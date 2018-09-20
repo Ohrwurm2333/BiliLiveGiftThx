@@ -155,7 +155,7 @@ class GiftMonitorHandler(bilibiliCilent.BaseDanmu):
             uid = dic['data']['uid']
             item = dic['data']['gift_name']
             try:
-                gift_id = dic['data']['giftId']
+                gift_id = dic['data']['gift_id'] if dic['data']['giftId'] is None else dic['data']['giftId']
             except:
                 dsn = ConfigLoader().dic_user['other_control']['sentry_dsn']
                 client = Client(dsn)
