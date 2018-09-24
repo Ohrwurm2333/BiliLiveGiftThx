@@ -386,21 +386,27 @@ class bilibili():
 
     @staticmethod
     async def request_send_danmu_msg_web(msg, roomId):
-        inst = bilibili.instance
-        url = f'{base_url}/msg/send'
-        data = {
-            'color': '16777215',
-            'fontsize': '25',
-            'mode': '1',
-            'msg': msg,
-            'rnd': '0',
-            'roomid': int(roomId),
-            'csrf_token': inst.dic_bilibili['csrf']
-        }
+        while(1):
+            inst = bilibili.instance
+            url = f'{base_url}/msg/send'
+            data = {
+                'color': '16777215',
+                'fontsize': '25',
+                'mode': '1',
+                'msg': msg,
+                'rnd': '0',
+                'roomid': int(roomId),
+                'csrf_token': inst.dic_bilibili['csrf']
+            }
 
-        json_rsp = await inst.bili_section_post(url, headers=inst.dic_bilibili['pcheaders'], data=data)
-        print(json_rsp)
-        return json_rsp
+            json_rsp = await inst.bili_section_post(url, headers=inst.dic_bilibili['pcheaders'], data=data)
+            if 'msg' in json_rsp and json_rsp['msg'] == 'msg in 1s':
+                await asyncio.sleep(1)
+            elif 'msg' in json_rsp and json_rsp['msg'] == '':
+                return json_rsp
+            else:
+                print(msg)
+                return json_rsp
 
     @staticmethod
     async def request_fetchmedal():
