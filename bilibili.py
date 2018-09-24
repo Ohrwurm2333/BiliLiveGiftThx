@@ -399,6 +399,7 @@ class bilibili():
         }
 
         json_rsp = await inst.bili_section_post(url, headers=inst.dic_bilibili['pcheaders'], data=data)
+        print(json_rsp)
         return json_rsp
 
     @staticmethod
