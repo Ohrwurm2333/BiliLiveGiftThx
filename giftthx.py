@@ -387,5 +387,8 @@ async def thx_danmu(msg, roomid=None):
         real_roomid = await check_room(roomid)
     else:
         real_roomid = roomid
-    asyncio.run_coroutine_threadsafe(bilibili.request_send_danmu_msg_web(msg, real_roomid), loop)
+    while(len(msg) > 30 and len(msg) != 0):
+        asyncio.run_coroutine_threadsafe(bilibili.request_send_danmu_msg_web(msg, real_roomid), loop)
+        msg = msg[30:]
+        await asyncio.sleep(1)
     # json_response = await bilibili.request_send_danmu_msg_web(msg, real_roomid)
