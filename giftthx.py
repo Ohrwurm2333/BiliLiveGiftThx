@@ -364,6 +364,8 @@ async def run():
                         msg = '感谢[吨吨]赠送的%d个%s mua~' % (thx_dic['num'], thx_dic['giftName'])
                     else:
                         msg = '感谢[%s]赠送的%d个%s~' % (thx_dic['uname'], thx_dic['num'], thx_dic['giftName'])
+                    if thx_dic['giftName'] == 'B坷垃':
+                        msg = '恭喜[%s]喜提叶叶勋章~' % (thx_dic['uname'])
                     if thx_dic['coin_type'] == 'gold':
                         msg += ' 么么哒~'
                 except:
