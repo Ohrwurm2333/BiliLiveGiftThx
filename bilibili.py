@@ -401,13 +401,16 @@ class bilibili():
 
             json_rsp = await inst.bili_section_post(url, headers=inst.dic_bilibili['pcheaders'], data=data)
             if 'msg' in json_rsp and json_rsp['msg'] == 'msg in 1s':
+                print(json_rsp)
                 await asyncio.sleep(1)
             elif json_rsp is None:
+                print(json_rsp)
                 await asyncio.sleep(1)
             elif 'msg' in json_rsp and json_rsp['msg'] == '':
+                print(json_rsp)
                 return json_rsp
             else:
-                print(msg)
+                print(json_rsp)
                 # return json_rsp
 
     @staticmethod
