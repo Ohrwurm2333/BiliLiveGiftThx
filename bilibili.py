@@ -408,7 +408,7 @@ class bilibili():
                 return json_rsp
             else:
                 print(msg)
-                return json_rsp
+                # return json_rsp
 
     @staticmethod
     async def request_fetchmedal():
