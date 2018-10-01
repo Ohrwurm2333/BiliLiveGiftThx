@@ -289,7 +289,7 @@ async def DanMuMsgHandle(dic):
                 # try:
                 p = ''
                 _ = re.findall(d['pattern'], content)
-                while(1):
+                for x in range(100):
                     if len(_) == 0:
                         break
                     p = _[0]
