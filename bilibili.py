@@ -386,7 +386,7 @@ class bilibili():
 
     @staticmethod
     async def request_send_danmu_msg_web(msg, roomId):
-        while(1):
+        for x in range(100):
             inst = bilibili.instance
             url = f'{base_url}/msg/send'
             data = {
