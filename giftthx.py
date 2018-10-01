@@ -258,7 +258,7 @@ async def DanMuMsgHandle(dic):
             try:
                 p = ''
                 _ = re.findall(d['pattern'], content)
-                while(1):
+                for x in range(100):
                     if len(_) == 0:
                         break
                     p = _[0]
@@ -302,8 +302,7 @@ async def DanMuMsgHandle(dic):
                 if p / l >= d['percent']:
                     print(p/l)
                     print(value)
-                    response = await thx_danmu(value)
-                    print(response)
+                    await thx_danmu(value)
                     return
         return
 
