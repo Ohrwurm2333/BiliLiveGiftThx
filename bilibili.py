@@ -386,32 +386,41 @@ class bilibili():
 
     @staticmethod
     async def request_send_danmu_msg_web(msg, roomId):
-        for x in range(100):
-            inst = bilibili.instance
-            url = f'{base_url}/msg/send'
-            data = {
-                'color': '16777215',
-                'fontsize': '25',
-                'mode': '1',
-                'msg': msg,
-                'rnd': '0',
-                'roomid': int(roomId),
-                'csrf_token': inst.dic_bilibili['csrf']
-            }
-
-            json_rsp = await inst.bili_section_post(url, headers=inst.dic_bilibili['pcheaders'], data=data)
-            if 'msg' in json_rsp and json_rsp['msg'] == 'msg in 1s':
-                print(json_rsp)
-                await asyncio.sleep(1)
-            elif json_rsp is None:
-                print(json_rsp)
-                await asyncio.sleep(1)
-            elif 'msg' in json_rsp and json_rsp['msg'] == '':
-                print(json_rsp)
-                return json_rsp
+        try:
+            if len(msg) == 0:
+                return
             else:
-                print(json_rsp)
-                # return json_rsp
+                msg_other = msg[30:]
+                msg = msg[0:30]
+                print(f'try post {msg}')
+                for x in range(100):
+                    inst = bilibili.instance
+                    url = f'{base_url}/msg/send'
+                    data = {
+                        'color': '16777215',
+                        'fontsize': '25',
+                        'mode': '1',
+                        'msg': msg,
+                        'rnd': '0',
+                        'roomid': int(roomId),
+                        'csrf_token': inst.dic_bilibili['csrf']
+                    }
+
+                    json_rsp = await inst.bili_section_post(url, headers=inst.dic_bilibili['pcheaders'], data=data)
+                    if 'msg' in json_rsp and json_rsp['msg'] == 'msg in 1s':
+                        print(json_rsp)
+                        await asyncio.sleep(1)
+                    elif json_rsp is None:
+                        print(json_rsp)
+                        await asyncio.sleep(1)
+                    elif 'msg' in json_rsp and json_rsp['msg'] == '':
+                        print(json_rsp)
+                        return await bilibili.request_send_danmu_msg_web(msg_other, roomId)
+                    else:
+                        print(json_rsp)
+                        # return json_rsp
+        except:
+            traceback.print_exc()
 
     @staticmethod
     async def request_fetchmedal():
