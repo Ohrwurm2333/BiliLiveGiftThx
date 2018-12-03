@@ -356,7 +356,7 @@ async def run():
                         'num': ans.get('num') + j.get('num'),
                     })
                     added = True
-                break
+                    break
             if not added:
                 filter_list.append(j)
 
