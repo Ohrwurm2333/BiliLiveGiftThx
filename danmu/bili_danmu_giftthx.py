@@ -71,6 +71,7 @@ class DanmuGiftThx(WsDanmuClient):
         raw_json = json.dumps(json_rsp, ensure_ascii=False)
         print(raw_json)
         if raw_json.get('msg', '') == 'msg in 1s':
+            await asyncio.sleep(1)
             return self.send_danmu(text, default_length)
         if len(text) > default_length:
             await asyncio.sleep(1)
