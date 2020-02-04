@@ -6,4 +6,4 @@ cookie = ""
 csrf = ""
 uid = ""
 refresh_token = ""
-manage_room = [8478563, ]
+manage_room = []
