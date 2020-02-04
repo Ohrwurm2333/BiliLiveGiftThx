@@ -157,12 +157,12 @@ async def init_danmu_managers():
     for user in users.gets(-2):
         for room in user.manage_room:
             session = aiohttp.ClientSession()
-            danmu = DanmuGiftThx(
+            danmu_ = DanmuGiftThx(
                 room_id=int(room),
                 area_id=-1,
                 session=session)
-            danmu.set_user(user)
-            danmu_managers.append(danmu)
+            danmu_.set_user(user)
+            danmu_managers.append(danmu_)
     return danmu_managers
 danmu_manager = loop.run_until_complete(init_danmu_managers())
 
@@ -184,11 +184,11 @@ danmu_manager = loop.run_until_complete(init_danmu_managers())
 
 tasks = []
 tasks += [manager.run() for manager in danmu_manager]
-tasks += [danmu.run_sender() for danmu in danmu_manager]
+tasks += [s.run_sender() for s in danmu_manager]
 
 other_tasks = [
     bili_sched.run(),
-    raffle_handler.run(),
+    # raffle_handler.run(),
 ]
 if other_tasks:
     loop.run_until_complete(asyncio.wait(tasks + other_tasks))

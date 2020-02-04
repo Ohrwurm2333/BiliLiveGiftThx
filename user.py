@@ -14,7 +14,7 @@ from tasks.login import LoginTask
 class User:
     _ids = count(0)
     __slots__ = (
-        'id', 'force_sleep', 'name', 'password', 'alias', 'manage_room', 'task_ctrl',
+        'id', 'force_sleep', 'name', 'password', 'manage_room', 'alias', 'task_ctrl',
         'task_arrangement', 'is_in_jail',
 
         'bililive_session', 'login_session', 'other_session',

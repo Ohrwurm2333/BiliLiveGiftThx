@@ -1,5 +1,5 @@
 import base64
-    
+
 import utils
 from json_rsp_ctrl import Ctrl, JsonRspType, In
 
@@ -27,7 +27,7 @@ class LoginReq:
         url = 'https://passport.bilibili.com/login?act=exit'
         json_rsp = await user.login_session.request_json('GET', url, headers=user.dict_bili['pcheaders'], ctrl=LOGIN_CTRL)
         return json_rsp
-        
+
     @staticmethod
     async def fetch_key(user):
         url = 'https://passport.bilibili.com/api/oauth2/getKey'
@@ -88,9 +88,9 @@ class LoginReq:
         params = user.sort_and_sign(extra_params)
         url = f'https://passport.bilibili.com/api/v2/oauth2/refresh_token'
         json_rsp = await user.login_session.request_json('POST', url, headers=user.dict_bili['appheaders'], params=params, ctrl=LOGIN_CTRL)
-        print('json_rsp', json_rsp)
+        # print('json_rsp', json_rsp)
         return json_rsp
-        
+
     @staticmethod
     async def cnn_captcha(user, content):
         url = "http://152.32.186.69:19951/captcha/v1"

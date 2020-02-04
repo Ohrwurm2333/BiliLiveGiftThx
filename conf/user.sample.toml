@@ -1,6 +1,7 @@
 [[users]]
 username = ""
 password = ""
+alias = ""
 access_key = ""
 cookie = ""
 csrf = ""
