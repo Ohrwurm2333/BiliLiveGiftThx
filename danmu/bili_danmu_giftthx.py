@@ -11,7 +11,7 @@ from reqs.utils import UtilsReq
 
 class DanmuGiftThx(WsDanmuClient):
     GIFT_MSG = '感谢{username}赠送的{num}个{giftname}'
-    DELAY_SECOND = 3
+    DELAY_SECOND = 4
 
     def set_user(self, user):
         self.user = user
